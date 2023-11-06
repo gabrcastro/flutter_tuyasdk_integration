@@ -9,6 +9,11 @@ class AppTheme {
     color: AppColors.white,
   );
 
+  static const TextStyle title = TextStyle(
+    fontSize: 20,
+    color: AppColors.white,
+  );
+
   static const TextStyle buttonsText = TextStyle(
     fontSize: 16,
     color: AppColors.black,
@@ -17,6 +22,11 @@ class AppTheme {
   static const TextStyle infoTexts = TextStyle(
     fontSize: 15,
     color: AppColors.gray,
+  );
+
+  static const TextStyle textFieldStyle = TextStyle(
+    fontSize: 15,
+    color: AppColors.white,
   );
 
   static ButtonStyle defaultButtons = ElevatedButton.styleFrom(

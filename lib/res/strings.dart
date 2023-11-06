@@ -2,7 +2,7 @@ import 'dart:ui';
 
 class Strings {
   static const String searchingDevices = "Buscando por dispositivos. Certifique-se que\nseu dispositivo está em modo de pareamento";
-  static const String configureNetwork = "Configurando conexão";
+  static const String configureNetwork = "Configure a conexão";
   static const String cancel = "Cancelar";
   static const String next = "Avançar";
   static const String ssid = "SSID";

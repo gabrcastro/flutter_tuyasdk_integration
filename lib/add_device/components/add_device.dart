@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:testfluter/add_device/components/device_card.dart';
-import 'package:testfluter/add_device/config_network_screen.dart';
+import 'package:testfluter/add_device/config_network.dart';
 import 'package:testfluter/res/strings.dart';
 import 'package:testfluter/res/colors.dart';
 
@@ -18,7 +18,7 @@ class AddDevice extends StatefulWidget {
 class _AddDeviceState extends State<AddDevice> {
   static const channel = MethodChannel(Constants.CHANNEL);
 
-  var deviceFound = DeviceModel(icon: "", name: "");
+  var deviceFound = DeviceModel(icon: "", name: "", type: 0);
   bool deviceFounded = false;
   bool isSearching = false;
 
@@ -28,8 +28,8 @@ class _AddDeviceState extends State<AddDevice> {
 
   @override
   void initState() {
-    _searchDevices();
     changeStateSearch();
+    searchDevices();
     super.initState();
   }
 
@@ -53,10 +53,10 @@ class _AddDeviceState extends State<AddDevice> {
               ),
               Visibility(
                 visible: isSearching,
-                child: Container(
+                child: const SizedBox(
                   height: 20,
                   width: 20,
-                  child: const CircularProgressIndicator(
+                  child: CircularProgressIndicator(
                     strokeWidth: 2,
                   ),
                 ),
@@ -68,7 +68,7 @@ class _AddDeviceState extends State<AddDevice> {
           visible: deviceFounded,
           child: DeviceCard(
             image: deviceFound.icon,
-            onPressedCallback: () => _navigateToConfigNetworkScreen(),
+            onPressedCallback: () => displayConfigNetworkModalBottomSheet(context),
           ),
         ),
       ],
@@ -81,32 +81,46 @@ class _AddDeviceState extends State<AddDevice> {
     });
   }
 
-  _searchDevices() async {
+  void changeStateDeviceFound() {
+    setState(() {
+      deviceFounded = !deviceFounded;
+    });
+  }
+
+  Future<void> searchDevices() async {
     try {
       List<dynamic> res = await channel
           .invokeMethod(Methods.SEARCH_DEVICES, <String, String>{});
+
       setState(() {
-        deviceFounded = true;
         deviceFound.name = res[0];
         deviceFound.icon = res[1];
+        deviceFound.type = res[2];
       });
+
+      changeStateDeviceFound();
+
     } catch (e) {
       print("Err $e");
     }
   }
 
-  Future<void> _stopSearchDevices() async {
+  Future<void> stopSearchDevices() async {
     bool res = await channel
         .invokeMethod(Methods.STOP_SEARCH_DEVICES, <String, String>{});
   }
 
-  void _navigateToConfigNetworkScreen() {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ConfigNetworkScreen(),
-      ),
-      ModalRoute.withName('/add'),
-    );
+  displayConfigNetworkModalBottomSheet(context) {
+    showModalBottomSheet(
+        context: context,
+        backgroundColor: const Color(0xFF111111),
+        showDragHandle: true,
+        isScrollControlled: true,
+        builder: (BuildContext bc) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: ConfigNetwork(typeDevice: deviceFound.type),
+          );
+        });
   }
 }

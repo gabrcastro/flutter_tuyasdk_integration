@@ -12,6 +12,7 @@ class PairingDeviceScreen extends StatefulWidget {
   final String productName;
   final String ssid;
   final String passwd;
+  final int typeDevice;
 
   const PairingDeviceScreen(
       {super.key,
@@ -19,7 +20,8 @@ class PairingDeviceScreen extends StatefulWidget {
       required this.productImage,
       required this.productName,
       required this.ssid,
-      required this.passwd});
+      required this.passwd,
+      required this.typeDevice});
 
   @override
   State<PairingDeviceScreen> createState() => _PairingDeviceScreenState();
@@ -34,6 +36,7 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
   String productName = "";
   String passwd = "";
   bool isSearching = true;
+  int deviceType = 0;
 
   @override
   void initState() {
@@ -42,14 +45,13 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
     productId = widget.productId;
     productImage = widget.productImage;
     productName = widget.productName;
-
+    deviceType = widget.typeDevice;
     configNetwork();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: const Color(0xFF000000),
       appBar: AppBar(
@@ -64,7 +66,8 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              stopPairDevice();
+              navigateToHome();
             },
             child: const Text(
               Strings.cancel,
@@ -81,8 +84,7 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
         child: Visibility(
           visible: isSearching,
           child: Padding(
-            padding:
-                const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
             child: Stack(
               alignment: Alignment.center,
               fit: StackFit.passthrough,
@@ -98,8 +100,7 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(100.0),
                       image: const DecorationImage(
-                        image: AssetImage(
-                            "assets/images/smart_color.png"),
+                        image: AssetImage("assets/images/smart_color.png"),
                         fit: BoxFit.fill,
                       ),
                     ),
@@ -114,23 +115,54 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
   }
 
   Future<void> configNetwork() async {
-    await channel.invokeMethod(Methods.CONFIG_PAIR, <String, String>{
-      "ssid": ssid,
-      "networkPasswd": passwd
-    });
+    var res = await channel.invokeMethod(Methods.CONFIG_PAIR,
+        <String, String>{"ssid": ssid, "networkPasswd": passwd});
 
-    pairDevice();
+    if (res == true) {
+      pairDevice();
+    }
   }
 
   Future<void> pairDevice() async {
-    var res = await channel.invokeMethod(Methods.START_PAIR, <String, String>{});
+    dynamic res = "";
+    if (deviceType == Constants.TYPE_DEVICE_WIFI_1) {
+      res = await channel.invokeMethod(Methods.START_PAIR_DEVICE_TYPE_301, <String, String>{});
+    }
+
+    if (deviceType == Constants.TYPE_DEVICE_WIFI_3) {
+      res = await channel.invokeMethod(Methods.START_PAIR, <String, String>{});
+    }
+
+
+    if (res == Constants.DEVICE_CONNECTED) {
+      navigateToHome();
+    }
   }
 
-  void _navigateToHome(String device) {
+  Future<void> stopPairDevice() async {
+    if (deviceType == Constants.TYPE_DEVICE_WIFI_1) {
+      dynamic res = await channel.invokeMethod(Methods.STOP_PAIR_DEVICE_TYPE_301, <String, String>{
+        "ssid": ssid,
+        "networkPasswd": passwd
+      });
+
+      print(">>>>>>>>>>>> res");
+      print(res);
+
+      if (res != null) {
+        navigateToHome();
+      }
+
+    } else {
+      await channel.invokeMethod(Methods.STOP_PAIR, <String, String>{});
+    }
+  }
+
+  void navigateToHome() {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-        builder: (context) => HomeScreen(device: device),
+        builder: (context) => HomeScreen(),
       ),
       ModalRoute.withName('/home'),
     );

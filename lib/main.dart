@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:testfluter/add_device/config_network_screen.dart';
+import 'package:testfluter/add_device/config_network.dart';
 import 'package:testfluter/add_device/pairing_device_screen.dart';
 import 'package:testfluter/login/login_screen.dart';
 import 'package:testfluter/res/colors.dart';

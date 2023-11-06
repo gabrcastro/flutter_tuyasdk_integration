@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testfluter/add_device/components/add_device.dart';
+import 'package:testfluter/add_device/config_network.dart';
 import 'package:testfluter/home/components/logout_widget.dart';
 import 'package:testfluter/res/colors.dart';
 import 'package:testfluter/res/strings.dart';
@@ -96,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   switch (index) {
                     case 0:
                       {
-                        displayModalBottomSheet(context);
+                        displayScanDevicesModalBottomSheet(context);
                         break;
                       }
                     case 1:
@@ -166,10 +167,6 @@ class _HomeScreenState extends State<HomeScreen> {
     prefs.setString("home_id", homeId.toString());
   }
 
-  Future<void> _turnOnOffBulb() async {
-    await channel.invokeMethod(Methods.TURN_ON_OFF_BULB, <String, String>{});
-  }
-
   Future<void> _getHomeList() async {
     final SharedPreferences prefs = await _prefs;
 
@@ -179,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  displayModalBottomSheet(context) {
+  displayScanDevicesModalBottomSheet(context) {
     showModalBottomSheet(
         context: context,
         backgroundColor: const Color(0xFF111111),
