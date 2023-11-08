@@ -30,11 +30,19 @@ class _AddDeviceState extends State<AddDevice> {
       List.generate(3, (index) => {"id": index, "name": "Product $index"})
           .toList();
 
+  Timer? _timer;
+
   @override
   void initState() {
     changeStateSearch();
     searchDevices();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel(); // Cancela o temporizador se estiver ativo
+    super.dispose();
   }
 
   @override
@@ -94,7 +102,7 @@ class _AddDeviceState extends State<AddDevice> {
   }
 
   void startTimer() {
-    Timer(const Duration(seconds: 10), () {
+    _timer = Timer(const Duration(seconds: 10), () {
       setState(() {
         pastLongTime = true;
       });

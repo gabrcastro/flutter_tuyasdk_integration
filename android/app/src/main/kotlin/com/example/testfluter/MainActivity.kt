@@ -75,33 +75,36 @@ class MainActivity : FlutterActivity() {
       val homeIdLong: Long? = homeId?.toLong()
 
       fun configComboDevicePairing() {
-        deviceBeanFounded?.let { bean ->
-          val multiModeActivatorBean: MultiModeActivatorBean = MultiModeActivatorBean(deviceBeanFounded)
-          multiModeActivatorBean.deviceType = bean.deviceType // The type of device.
-          multiModeActivatorBean.uuid = bean.uuid // The UUID of the device.
-          multiModeActivatorBean.address = bean.address // The IP address of the device.
-          multiModeActivatorBean.mac = bean.mac // The MAC address of the device.
-          multiModeActivatorBean.ssid = "GABRIEL"; // The SSID of the target Wi-Fi network.
-          multiModeActivatorBean.pwd = "n4JkVhAcUV"; // The password of the target Wi-Fi network.
-          multiModeActivatorBean.token = currentToken; // The pairing token.
-          multiModeActivatorBean.timeout = 120000;
-          multiModeActivatorBean.homeId = currentHomeBean?.homeId!!
+        val multiModeActivatorBean: MultiModeActivatorBean = MultiModeActivatorBean(deviceBeanFounded)
+        currentHomeBean?.let { home ->
+          deviceBeanFounded?.let { bean ->
+            multiModeActivatorBean.deviceType = bean.deviceType // The type of device.
+            multiModeActivatorBean.uuid = bean.uuid // The UUID of the device.
+            multiModeActivatorBean.address = bean.address // The IP address of the device.
+            multiModeActivatorBean.mac = bean.mac // The MAC address of the device.
+            multiModeActivatorBean.ssid = "GABRIEL"; // The SSID of the target Wi-Fi network.
+            multiModeActivatorBean.pwd = "n4JkVhAcUV"; // The password of the target Wi-Fi network.
+            multiModeActivatorBean.token = currentToken; // The pairing token.
+            multiModeActivatorBean.timeout = 120000;
+            multiModeActivatorBean.homeId = home.homeId
 
-          ThingHomeSdk.getActivator().newMultiModeActivator().startActivator(
-              multiModeActivatorBean,
-              object : IMultiModeActivatorListener {
-                override fun onSuccess(deviceBean: DeviceBean?) {
-                  result.success(deviceBean)
-                  Toast.makeText(context, deviceBean.toString(), Toast.LENGTH_LONG).show()
-                }
+            ThingHomeSdk.getActivator().newMultiModeActivator().startActivator(
+                multiModeActivatorBean,
+                object : IMultiModeActivatorListener {
+                  override fun onSuccess(deviceBean: DeviceBean?) {
+                    result.success(deviceBean)
+                    Log.i("scan", "DEVICE BEAN ${deviceBean?.dpName.toString()}")
+                    Toast.makeText(context, deviceBean.toString(), Toast.LENGTH_LONG).show()
+                  }
 
-                override fun onFailure(code: Int, msg: String?, handle: Any?) {
-                  Log.i("scan", msg.toString())
-                  Log.i("scan", code.toString())
-                  Log.i("scan", handle.toString())
+                  override fun onFailure(code: Int, msg: String?, handle: Any?) {
+                    Log.i("scan", msg.toString())
+                    Log.i("scan", code.toString())
+                    Log.i("scan", handle.toString())
+                  }
                 }
-              }
-          )
+            )
+          }
         }
       }
       fun configThingActivatorToken(token: String) {

@@ -31,7 +31,6 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
   static const channel = MethodChannel(Constants.CHANNEL);
 
   bool isSearching = true;
-  int deviceType = 0;
 
   @override
   void initState() {
@@ -92,7 +91,7 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(100.0),
                       image: DecorationImage(
-                        image: AssetImage(widget.productImage),
+                        image: NetworkImage(widget.productImage),
                         fit: BoxFit.fill,
                       ),
                     ),
@@ -117,13 +116,13 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
 
   Future<void> pairDevice() async {
     dynamic res = "";
-    if (deviceType == Constants.TYPE_DEVICE_WIFI_1) {
+    if (widget.typeDevice == Constants.TYPE_DEVICE_WIFI_1) {
       res = await channel.invokeMethod(Methods.START_PAIR_DEVICE_TYPE_301, <String, String>{});
       print(">>>>>>>>>>>> res");
       print(res);
     }
 
-    if (deviceType == Constants.TYPE_DEVICE_WIFI_3) {
+    if (widget.typeDevice == Constants.TYPE_DEVICE_WIFI_3) {
       res = await channel.invokeMethod(Methods.START_PAIR, <String, String>{});
     }
 
@@ -134,7 +133,7 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
   }
 
   Future<void> stopPairDevice() async {
-    if (deviceType == Constants.TYPE_DEVICE_WIFI_1) {
+    if (widget.typeDevice == Constants.TYPE_DEVICE_WIFI_1) {
       dynamic res = await channel.invokeMethod(Methods.STOP_PAIR_DEVICE_TYPE_301, <String, String>{
         "ssid": widget.ssid,
         "networkPasswd": widget.passwd
