@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 class Strings {
+  static const String notFoundDeviceScanning = "Está demorando mais do que o esperado.\nReinicie o dispositivo novamente.";
   static const String searchingDevices = "Buscando por dispositivos. Certifique-se que\nseu dispositivo está em modo de pareamento";
   static const String configureNetwork = "Configure a conexão";
   static const String cancel = "Cancelar";

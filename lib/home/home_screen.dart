@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testfluter/add_device/components/add_device.dart';
 import 'package:testfluter/add_device/config_network.dart';
@@ -10,10 +11,7 @@ import 'package:testfluter/res/strings.dart';
 import 'package:testfluter/utils/enums.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({
-    Key? key,
-    this.device
-  }) : super(key: key);
+  HomeScreen({Key? key, this.device}) : super(key: key);
 
   String? device;
 
@@ -44,6 +42,8 @@ class _HomeScreenState extends State<HomeScreen> {
     },
   ];
 
+  bool permGranted = true;
+
   Future<void> _initializeUID() async {
     final SharedPreferences prefs = await _prefs;
     setState(() {
@@ -55,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     _checkIsHomeCreated();
     _initializeUID();
+    getPermissions();
     homeBean = null;
     super.initState();
   }
@@ -187,5 +188,29 @@ class _HomeScreenState extends State<HomeScreen> {
             child: AddDevice(),
           );
         });
+  }
+
+  getPermissions() async {
+    var locationStatus = await Permission.location.status;
+
+    if (locationStatus.isDenied) {
+      setState(() {
+        permGranted = false;
+      });
+      Map<Permission, PermissionStatus> statuses = await [
+        Permission.location,
+        Permission.bluetoothScan,
+        Permission.bluetoothAdvertise,
+        Permission.bluetoothConnect
+      ].request();
+      if (statuses[Permission.location]!.isGranted &&
+          statuses[Permission.bluetoothScan]!.isGranted &&
+          statuses[Permission.bluetoothAdvertise]!.isGranted &&
+          statuses[Permission.bluetoothConnect]!.isGranted) {
+        setState(() {
+          permGranted = true;
+        });
+      } //check each permission status after.
+    }
   }
 }

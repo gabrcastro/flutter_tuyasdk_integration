@@ -7,10 +7,12 @@ import 'package:testfluter/res/themes.dart';
 class ConfigNetwork extends StatefulWidget {
   const ConfigNetwork({
     super.key,
-    required this.typeDevice
+    required this.typeDevice,
+    required this.deviceIcon
   });
 
   final int typeDevice;
+  final String deviceIcon;
 
   @override
   State<ConfigNetwork> createState() => _ConfigNetworkState();
@@ -130,7 +132,7 @@ class _ConfigNetworkState extends State<ConfigNetwork> {
           ssid: ssidController.text,
           passwd: passwController.text,
           productId: "",
-          productImage: "",
+          productImage: widget.deviceIcon,
           productName: "",
           typeDevice: deviceType,
         ),

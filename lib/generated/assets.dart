@@ -2,6 +2,7 @@
 class Assets {
   Assets._();
 
+  static const String imagesEmpty = 'assets/images/empty.png';
   static const String imagesSmartColor = 'assets/images/smart_color.png';
   static const String lottiesLoading = 'assets/lotties/loading.json';
 

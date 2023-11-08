@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:testfluter/add_device/components/device_card.dart';
 import 'package:testfluter/add_device/config_network.dart';
 import 'package:testfluter/res/strings.dart';
 import 'package:testfluter/res/colors.dart';
+import 'package:testfluter/res/themes.dart';
 
 import '../../DeviceModel.dart';
 import '../../utils/enums.dart';
@@ -20,6 +23,7 @@ class _AddDeviceState extends State<AddDevice> {
 
   var deviceFound = DeviceModel(icon: "", name: "", type: 0);
   bool deviceFounded = false;
+  bool pastLongTime = false;
   bool isSearching = false;
 
   final List<Map> myProducts =
@@ -65,14 +69,36 @@ class _AddDeviceState extends State<AddDevice> {
           ),
         ),
         Visibility(
+          visible: pastLongTime,
+          child: const Center(
+            child: Padding(
+              padding: EdgeInsets.only(top: 50.0),
+              child: Text(
+                Strings.notFoundDeviceScanning,
+                style: AppTheme.infoTexts,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
+        Visibility(
           visible: deviceFounded,
           child: DeviceCard(
             image: deviceFound.icon,
-            onPressedCallback: () => displayConfigNetworkModalBottomSheet(context),
+            onPressedCallback: () =>
+                displayConfigNetworkModalBottomSheet(context),
           ),
         ),
       ],
     );
+  }
+
+  void startTimer() {
+    Timer(const Duration(seconds: 10), () {
+      setState(() {
+        pastLongTime = true;
+      });
+    });
   }
 
   void changeStateSearch() {
@@ -88,6 +114,8 @@ class _AddDeviceState extends State<AddDevice> {
   }
 
   Future<void> searchDevices() async {
+    startTimer();
+
     try {
       List<dynamic> res = await channel
           .invokeMethod(Methods.SEARCH_DEVICES, <String, String>{});
@@ -99,7 +127,9 @@ class _AddDeviceState extends State<AddDevice> {
       });
 
       changeStateDeviceFound();
-
+      setState(() {
+        pastLongTime = false;
+      });
     } catch (e) {
       print("Err $e");
     }
@@ -119,7 +149,10 @@ class _AddDeviceState extends State<AddDevice> {
         builder: (BuildContext bc) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: ConfigNetwork(typeDevice: deviceFound.type),
+            child: ConfigNetwork(
+              deviceIcon: deviceFound.icon,
+              typeDevice: deviceFound.type,
+            ),
           );
         });
   }
