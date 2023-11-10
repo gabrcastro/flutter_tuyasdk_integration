@@ -2,7 +2,13 @@ package com.example.testfluter
 
 import android.util.Log
 import android.widget.Toast
+import com.thingclips.smart.activator.core.kit.ThingActivatorCoreKit
 import com.thingclips.smart.activator.core.kit.bean.ThingActivatorScanKey
+import com.thingclips.smart.activator.core.kit.bean.ThingDeviceActiveErrorBean
+import com.thingclips.smart.activator.core.kit.bean.ThingDeviceActiveLimitBean
+import com.thingclips.smart.activator.core.kit.builder.ThingDeviceActiveBuilder
+import com.thingclips.smart.activator.core.kit.constant.ThingDeviceActiveModeEnum
+import com.thingclips.smart.activator.core.kit.listener.IThingDeviceStatePauseActiveListener
 import com.thingclips.smart.android.ble.api.LeScanSetting
 import com.thingclips.smart.android.ble.api.ScanDeviceBean
 import com.thingclips.smart.android.ble.api.ScanType
@@ -25,6 +31,7 @@ import com.thingclips.smart.sdk.api.IThingDataCallback
 import com.thingclips.smart.sdk.api.IThingSmartActivatorListener
 import com.thingclips.smart.sdk.bean.DeviceBean
 import com.thingclips.smart.sdk.bean.MultiModeActivatorBean
+import com.thingclips.smart.sdk.bean.PauseStateData
 import com.thingclips.smart.sdk.enums.ActivatorEZStepCode
 import com.thingclips.smart.sdk.enums.ActivatorModelEnum
 import io.flutter.embedding.android.FlutterActivity
@@ -71,27 +78,7 @@ class MainActivity : FlutterActivity() {
       val homeId: String? = argument["home_id"]
       val homeIdLong: Long? = homeId?.toLong()
 
-      fun getNewActivatorToken() : String {
-        var newToken = ""
-        currentHomeBean?.let {
-          ThingHomeSdk.getActivatorInstance().getActivatorToken(
-            it.homeId,
-            object : IThingActivatorGetToken {
-              override fun onSuccess(token: String) {
-                newToken = token
-              }
-              override fun onFailure(s: String, s1: String) {
-
-              }
-            }
-          )
-        }
-
-        return newToken
-      }
-
-      fun configComboDevicePairing(token: String) {
-
+      fun configComboDevicePairing() {
         val multiModeActivatorBean: MultiModeActivatorBean = MultiModeActivatorBean(deviceBeanFounded)
         currentHomeBean?.let { home ->
           deviceBeanFounded?.let { bean ->
@@ -99,29 +86,34 @@ class MainActivity : FlutterActivity() {
             multiModeActivatorBean.uuid = bean.uuid // The UUID of the device.
             multiModeActivatorBean.address = bean.address // The IP address of the device.
             multiModeActivatorBean.mac = bean.mac // The MAC address of the device.
-            multiModeActivatorBean.ssid = "GABRIEL"; // The SSID of the target Wi-Fi network.
-            multiModeActivatorBean.pwd = "n4JkVhAcUV"; // The password of the target Wi-Fi network.
-            multiModeActivatorBean.token = token; // The pairing token.
-            multiModeActivatorBean.timeout = 120000;
+            multiModeActivatorBean.ssid = "GABRIEL" // The SSID of the target Wi-Fi network.
+            multiModeActivatorBean.pwd = "n4JkVhAcUV" // The password of the target Wi-Fi network.
+            multiModeActivatorBean.token = currentToken // The pairing token.
+            multiModeActivatorBean.timeout = 120 * 1000L
+            multiModeActivatorBean.phase1Timeout = 60 * 1000L
             multiModeActivatorBean.homeId = home.homeId
+            multiModeActivatorBean.productId = bean.productId
 
-            Log.i("scan", multiModeActivatorBean.toString())
+            val listener: IMultiModeActivatorListener = object : IMultiModeActivatorListener {
+              override fun onSuccess(deviceBean: DeviceBean?) {
+                result.success(deviceBean)
+                Log.i("scan", "DEVICE BEAN ${deviceBean?.dpName.toString()}")
+                Toast.makeText(context, deviceBean.toString(), Toast.LENGTH_LONG).show()
+              }
+
+              override fun onFailure(code: Int, msg: String?, handle: Any?) {
+                Log.i("scan", "MSG")
+                Log.i("scan", msg.toString())
+                Log.i("scan", "CODE")
+                Log.i("scan", code.toString())
+                Log.i("scan", "HANDLE")
+                Log.i("scan", handle.toString())
+              }
+            }
 
             ThingHomeSdk.getActivator().newMultiModeActivator().startActivator(
                 multiModeActivatorBean,
-                object : IMultiModeActivatorListener {
-                  override fun onSuccess(deviceBean: DeviceBean?) {
-                    result.success(deviceBean)
-                    Log.i("scan", "DEVICE BEAN ${deviceBean?.dpName.toString()}")
-                    Toast.makeText(context, deviceBean.toString(), Toast.LENGTH_LONG).show()
-                  }
-
-                  override fun onFailure(code: Int, msg: String?, handle: Any?) {
-                    Log.i("scan", msg.toString())
-                    Log.i("scan", code.toString())
-                    Log.i("scan", handle.toString())
-                  }
-                }
+                listener
             )
           }
         }
@@ -440,8 +432,42 @@ class MainActivity : FlutterActivity() {
       }
 
       if (call.method == START_PAIR_DEVICE_TYPE_301) {
-        val token = getNewActivatorToken()
-        configComboDevicePairing(token)
+        configComboDevicePairing()
+
+//        val builder = ThingDeviceActiveBuilder()
+////        builder.thingActivatorScanDeviceBean = thingActivatorScanDeviceBean
+//        builder.thingActivatorScanDeviceBean =
+//        builder.timeOut = 120L
+//        builder.relationId = relationId
+//        builder.ssid = ssid
+//        builder.password = password
+//        builder.activeModel = ThingDeviceActiveModeEnum.BLE_WIFI
+//        builder.listener = object : IThingDeviceStatePauseActiveListener {
+//          override fun onFind(devId: String) {
+//          }
+//
+//          override fun onBind(devId: String) {
+//          }
+//
+//          override fun onActiveSuccess(deviceBean: DeviceBean) {
+//
+//          }
+//
+//          override fun onActiveError(errorBean: ThingDeviceActiveErrorBean) {
+//
+//          }
+//
+//          override fun onActiveLimited(limitBean: ThingDeviceActiveLimitBean) {
+//          }
+//
+//          override fun onActivatorStatePauseCallback(stateData: PauseStateData?) {
+//
+//          }
+//        }
+//
+//        val activeManager = ThingActivatorCoreKit.getActiveManager().newThingActiveManager()
+//        activeManager.startActive(builder)
+
       }
 
       if (call.method == STOP_PAIR_DEVICE_TYPE_301) {
