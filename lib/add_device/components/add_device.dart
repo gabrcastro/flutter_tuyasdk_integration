@@ -26,7 +26,7 @@ class _AddDeviceState extends State<AddDevice> {
   bool deviceFounded = false;
   bool pastLongTime = false;
   bool isSearching = false;
-  bool blueIsOn = false;
+  bool blueIsOn = true;
 
   final List<Map> myProducts =
       List.generate(3, (index) => {"id": index, "name": "Product $index"})
@@ -39,7 +39,7 @@ class _AddDeviceState extends State<AddDevice> {
   void initState() {
     changeStateSearch();
     searchDevices();
-    bluetoothCheckTimer = Timer.periodic(Duration(seconds: 5), (timer) {
+    bluetoothCheckTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
       checkDeviceBluetoothIsOn();
     });
     super.initState();
@@ -103,7 +103,7 @@ class _AddDeviceState extends State<AddDevice> {
                     fontSize: 14,
                   ),
                 ),
-                const SizedBox(
+                SizedBox(
                   width: 10,
                 ),
                 Icon(

@@ -116,16 +116,14 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
 
   Future<void> pairDevice() async {
     dynamic res = "";
+
     if (widget.typeDevice == Constants.TYPE_DEVICE_WIFI_1) {
       res = await channel.invokeMethod(Methods.START_PAIR_DEVICE_TYPE_301, <String, String>{});
-      print(">>>>>>>>>>>> res");
-      print(res);
     }
 
     if (widget.typeDevice == Constants.TYPE_DEVICE_WIFI_3) {
       res = await channel.invokeMethod(Methods.START_PAIR, <String, String>{});
     }
-
 
     if (res == Constants.DEVICE_CONNECTED) {
       navigateToHome();

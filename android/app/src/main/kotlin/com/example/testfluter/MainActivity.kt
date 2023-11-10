@@ -3,12 +3,10 @@ package com.example.testfluter
 import android.util.Log
 import android.widget.Toast
 import com.thingclips.smart.activator.core.kit.bean.ThingActivatorScanKey
-import com.thingclips.smart.android.ble.api.BleScanResponse
 import com.thingclips.smart.android.ble.api.LeScanSetting
 import com.thingclips.smart.android.ble.api.ScanDeviceBean
 import com.thingclips.smart.android.ble.api.ScanType
 import com.thingclips.smart.android.device.bean.DeviceDpInfoBean
-import com.thingclips.smart.android.network.request.ThingSmartNetWorkConfig
 import com.thingclips.smart.android.user.api.ILoginCallback
 import com.thingclips.smart.android.user.api.ILogoutCallback
 import com.thingclips.smart.android.user.api.IRegisterCallback
@@ -27,7 +25,6 @@ import com.thingclips.smart.sdk.api.IThingDataCallback
 import com.thingclips.smart.sdk.api.IThingSmartActivatorListener
 import com.thingclips.smart.sdk.bean.DeviceBean
 import com.thingclips.smart.sdk.bean.MultiModeActivatorBean
-import com.thingclips.smart.sdk.bean.MultiModeActivatorBuilder
 import com.thingclips.smart.sdk.enums.ActivatorEZStepCode
 import com.thingclips.smart.sdk.enums.ActivatorModelEnum
 import io.flutter.embedding.android.FlutterActivity
@@ -74,7 +71,27 @@ class MainActivity : FlutterActivity() {
       val homeId: String? = argument["home_id"]
       val homeIdLong: Long? = homeId?.toLong()
 
-      fun configComboDevicePairing() {
+      fun getNewActivatorToken() : String {
+        var newToken = ""
+        currentHomeBean?.let {
+          ThingHomeSdk.getActivatorInstance().getActivatorToken(
+            it.homeId,
+            object : IThingActivatorGetToken {
+              override fun onSuccess(token: String) {
+                newToken = token
+              }
+              override fun onFailure(s: String, s1: String) {
+
+              }
+            }
+          )
+        }
+
+        return newToken
+      }
+
+      fun configComboDevicePairing(token: String) {
+
         val multiModeActivatorBean: MultiModeActivatorBean = MultiModeActivatorBean(deviceBeanFounded)
         currentHomeBean?.let { home ->
           deviceBeanFounded?.let { bean ->
@@ -84,9 +101,11 @@ class MainActivity : FlutterActivity() {
             multiModeActivatorBean.mac = bean.mac // The MAC address of the device.
             multiModeActivatorBean.ssid = "GABRIEL"; // The SSID of the target Wi-Fi network.
             multiModeActivatorBean.pwd = "n4JkVhAcUV"; // The password of the target Wi-Fi network.
-            multiModeActivatorBean.token = currentToken; // The pairing token.
+            multiModeActivatorBean.token = token; // The pairing token.
             multiModeActivatorBean.timeout = 120000;
             multiModeActivatorBean.homeId = home.homeId
+
+            Log.i("scan", multiModeActivatorBean.toString())
 
             ThingHomeSdk.getActivator().newMultiModeActivator().startActivator(
                 multiModeActivatorBean,
@@ -421,7 +440,8 @@ class MainActivity : FlutterActivity() {
       }
 
       if (call.method == START_PAIR_DEVICE_TYPE_301) {
-        configComboDevicePairing()
+        val token = getNewActivatorToken()
+        configComboDevicePairing(token)
       }
 
       if (call.method == STOP_PAIR_DEVICE_TYPE_301) {
