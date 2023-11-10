@@ -32,10 +32,10 @@ class _HomeScreenState extends State<HomeScreen> {
   String? uid;
   String? homeBean;
   List sampleItemValue = [
-    {
-      "title": Strings.newDevice,
-      "icon": Icons.add,
-    },
+    // {
+    //   "title": Strings.newDevice,
+    //   "icon": Icons.add,
+    // },
     {
       "title": Strings.logout,
       "icon": Icons.logout_rounded,
@@ -69,6 +69,14 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: const Color(0xFF111111),
         automaticallyImplyLeading: false,
         actions: [
+          IconButton(
+              onPressed: () {
+                displayScanDevicesModalBottomSheet(context);
+              },
+              icon: const Icon(
+                Icons.add_circle_outline_rounded,
+                color: AppColors.blueLight,
+              )),
           MenuAnchor(
             style: MenuStyle(
               backgroundColor:
@@ -92,16 +100,11 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
             menuChildren: List<MenuItemButton>.generate(
-              2,
+              1,
               (int index) => MenuItemButton(
                 onPressed: () {
                   switch (index) {
                     case 0:
-                      {
-                        displayScanDevicesModalBottomSheet(context);
-                        break;
-                      }
-                    case 1:
                       {
                         showDialog<String>(
                           context: context,

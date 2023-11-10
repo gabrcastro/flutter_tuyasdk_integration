@@ -6,6 +6,7 @@ class Strings {
   static const String configureNetwork = "Configure a conexão";
   static const String cancel = "Cancelar";
   static const String next = "Avançar";
+  static const String blueOff = "Bluetooth está desativado";
   static const String ssid = "SSID";
   static const String email = "E-mail";
   static const String password = "Senha";

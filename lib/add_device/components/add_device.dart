@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 import 'package:testfluter/add_device/components/device_card.dart';
 import 'package:testfluter/add_device/config_network.dart';
 import 'package:testfluter/res/strings.dart';
@@ -25,23 +26,29 @@ class _AddDeviceState extends State<AddDevice> {
   bool deviceFounded = false;
   bool pastLongTime = false;
   bool isSearching = false;
+  bool blueIsOn = false;
 
   final List<Map> myProducts =
       List.generate(3, (index) => {"id": index, "name": "Product $index"})
           .toList();
 
   Timer? _timer;
+  Timer? bluetoothCheckTimer;
 
   @override
   void initState() {
     changeStateSearch();
     searchDevices();
+    bluetoothCheckTimer = Timer.periodic(Duration(seconds: 5), (timer) {
+      checkDeviceBluetoothIsOn();
+    });
     super.initState();
   }
 
   @override
   void dispose() {
-    _timer?.cancel(); // Cancela o temporizador se estiver ativo
+    _timer?.cancel();
+    bluetoothCheckTimer?.cancel();
     super.dispose();
   }
 
@@ -77,6 +84,37 @@ class _AddDeviceState extends State<AddDevice> {
           ),
         ),
         Visibility(
+          visible: !blueIsOn,
+          child: Container(
+            padding: const EdgeInsets.all(10.0),
+            height: 50,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: AppColors.grayBlack,
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  Strings.blueOff,
+                  style: TextStyle(
+                    color: AppColors.gray,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Icon(
+                  Icons.bluetooth_disabled,
+                  color: AppColors.red,
+                ),
+              ],
+            ),
+          ),
+        ),
+        Visibility(
           visible: pastLongTime,
           child: const Center(
             child: Padding(
@@ -101,6 +139,13 @@ class _AddDeviceState extends State<AddDevice> {
     );
   }
 
+  Future<void> checkDeviceBluetoothIsOn() async {
+    bool status = await FlutterBlue.instance.isOn;
+    setState(() {
+      blueIsOn = status;
+    });
+  }
+
   void startTimer() {
     _timer = Timer(const Duration(seconds: 10), () {
       setState(() {
@@ -123,7 +168,6 @@ class _AddDeviceState extends State<AddDevice> {
 
   Future<void> searchDevices() async {
     startTimer();
-
     try {
       List<dynamic> res = await channel
           .invokeMethod(Methods.SEARCH_DEVICES, <String, String>{});
