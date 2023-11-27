@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testfluter/home/home_screen.dart';
 import 'package:testfluter/res/colors.dart';
 import 'package:testfluter/res/strings.dart';
@@ -30,7 +31,10 @@ class PairingDeviceScreen extends StatefulWidget {
 class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
   static const channel = MethodChannel(Constants.CHANNEL);
 
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   bool isSearching = true;
+  bool deviceConnected = false;
 
   @override
   void initState() {
@@ -40,7 +44,6 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     String emptyImage = "assets/images/empty.png";
 
     return Scaffold(
@@ -80,19 +83,27 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
               alignment: Alignment.center,
               fit: StackFit.passthrough,
               children: [
-                Center(
-                  child: Lottie.asset("assets/lotties/loading.json"),
+                InkWell(
+                  onTap: () {
+                    navigateToHome();
+                  },
+                  child: Center(
+                    child: Lottie.asset("assets/lotties/loading.json"),
+                  ),
                 ),
                 Center(
-                  child: Container(
-                    width: 100.0,
-                    height: 100.0,
-                    margin: const EdgeInsets.only(bottom: 10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100.0),
-                      image: DecorationImage(
-                        image: NetworkImage(widget.productImage),
-                        fit: BoxFit.fill,
+                  child: Visibility(
+                    visible: deviceConnected,
+                    child: Container(
+                      width: 100.0,
+                      height: 100.0,
+                      margin: const EdgeInsets.only(bottom: 10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100.0),
+                        image: DecorationImage(
+                          image: NetworkImage(widget.productImage),
+                          fit: BoxFit.fill,
+                        ),
                       ),
                     ),
                   ),
@@ -115,35 +126,22 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
   }
 
   Future<void> pairDevice() async {
-    dynamic res = "";
 
-    if (widget.typeDevice == Constants.TYPE_DEVICE_WIFI_1) {
-      res = await channel.invokeMethod(Methods.START_PAIR_DEVICE_TYPE_301, <String, String>{});
-    }
+    final SharedPreferences prefs = await _prefs;
 
-    if (widget.typeDevice == Constants.TYPE_DEVICE_WIFI_3) {
-      res = await channel.invokeMethod(Methods.START_PAIR, <String, String>{});
-    }
-
-    if (res == Constants.DEVICE_CONNECTED) {
-      navigateToHome();
-    }
+    String? deviceID = await channel
+          .invokeMethod(Methods.START_PAIR_DEVICE_TYPE_301, <String, String>{
+          "home_id": prefs.getString("home_id").toString(),
+    });
   }
 
   Future<void> stopPairDevice() async {
     if (widget.typeDevice == Constants.TYPE_DEVICE_WIFI_1) {
-      dynamic res = await channel.invokeMethod(Methods.STOP_PAIR_DEVICE_TYPE_301, <String, String>{
+      dynamic res = await channel.invokeMethod(
+          Methods.STOP_PAIR_DEVICE_TYPE_301, <String, String>{
         "ssid": widget.ssid,
         "networkPasswd": widget.passwd
       });
-
-      print(">>>>>>>>>>>> res");
-      print(res);
-
-      if (res != null) {
-        navigateToHome();
-      }
-
     } else {
       await channel.invokeMethod(Methods.STOP_PAIR, <String, String>{});
     }
@@ -153,9 +151,14 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-        builder: (context) => HomeScreen(),
+        builder: (context) => HomeScreen(deviceConnected: true),
       ),
       ModalRoute.withName('/home'),
     );
+  }
+
+  void _devicePaired(String deviceId) async {
+    final SharedPreferences prefs = await _prefs;
+    prefs.setString("device_paired", deviceId);
   }
 }

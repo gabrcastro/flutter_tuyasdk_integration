@@ -4,16 +4,16 @@ import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testfluter/add_device/components/add_device.dart';
-import 'package:testfluter/add_device/config_network.dart';
 import 'package:testfluter/home/components/logout_widget.dart';
 import 'package:testfluter/res/colors.dart';
 import 'package:testfluter/res/strings.dart';
 import 'package:testfluter/utils/enums.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({Key? key, this.device}) : super(key: key);
+  HomeScreen({Key? key, this.device, this.deviceConnected}) : super(key: key);
 
   String? device;
+  bool? deviceConnected;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -44,25 +44,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool permGranted = true;
 
-  Future<void> _initializeUID() async {
-    final SharedPreferences prefs = await _prefs;
-    setState(() {
-      uid = prefs.getString("user_uid");
-    });
-  }
-
   @override
   void initState() {
     _checkIsHomeCreated();
     _initializeUID();
     getPermissions();
+    getDevicePaired();
     homeBean = null;
+    _getHomeList();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     bool showBottomSheet = false;
+
+    // if (widget.deviceConnected == true) {
+    //   _getHomeList();
+    // }
+
     return Scaffold(
       backgroundColor: const Color(0xFF000000),
       appBar: AppBar(
@@ -163,12 +163,31 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> _checkIsHomeCreated() async {
-    var homeId = await channel.invokeMethod(Methods.CHECK_HOME_ALREADY_EXIST,
+  Future<void> _initializeUID() async {
+    final SharedPreferences prefs = await _prefs;
+    setState(() {
+      uid = prefs.getString("user_uid");
+    });
+  }
+
+  void getDevicePaired() async {
+    final SharedPreferences prefs = await _prefs;
+    String? deviceId = prefs.getString("device_paired");
+
+    if (deviceId != null) {
+      dynamic device = channel.invokeMethod(Methods.GET_DEVICES_PAIRED, <String, String>{
+        "get_device_id": deviceId
+      });
+    }
+  }
+
+  _checkIsHomeCreated() async {
+    final SharedPreferences prefs = await _prefs;
+
+    String homeId = await channel.invokeMethod(Methods.CREATE_HOME,
         <String, String>{"home_name": "Home"});
 
-    final SharedPreferences prefs = await _prefs;
-    prefs.setString("home_id", homeId.toString());
+    prefs.setString("home_id", homeId);
   }
 
   Future<void> _getHomeList() async {
@@ -204,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Permission.location,
         Permission.bluetoothScan,
         Permission.bluetoothAdvertise,
-        Permission.bluetoothConnect
+        Permission.bluetoothConnect,
       ].request();
       if (statuses[Permission.location]!.isGranted &&
           statuses[Permission.bluetoothScan]!.isGranted &&

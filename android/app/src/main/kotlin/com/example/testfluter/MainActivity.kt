@@ -2,6 +2,8 @@ package com.example.testfluter
 
 import android.util.Log
 import android.widget.Toast
+import com.example.testfluter.scan.DeviceFound
+import com.example.testfluter.scan.ScanDevice
 import com.thingclips.smart.activator.core.kit.ThingActivatorCoreKit
 import com.thingclips.smart.activator.core.kit.bean.ThingActivatorScanKey
 import com.thingclips.smart.activator.core.kit.bean.ThingDeviceActiveErrorBean
@@ -49,9 +51,10 @@ class MainActivity : FlutterActivity() {
     private var currentToken: String = ""
     private var devicesFound: MutableList<Any?>? = null
     private var devices: MutableList<Devices>? = null
-    private var rooms: List<String> = listOf("Living Room")
+    private var rooms: List<String> = listOf()
     private var dataDeviceFound: Any? = null
     private var activatorScanKey: ThingActivatorScanKey? = null
+    private var successCalled: Boolean = false
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -77,6 +80,7 @@ class MainActivity : FlutterActivity() {
             val homeName = argument["home_name"]
             val homeId: String? = argument["home_id"]
             val homeIdLong: Long? = homeId?.toLong()
+            val getDeviceId: String? = argument["get_device_id"]
 
             fun configComboDevicePairing() {
                 val multiModeActivatorBean: MultiModeActivatorBean =
@@ -89,7 +93,7 @@ class MainActivity : FlutterActivity() {
                             bean.address // The IP address of the device.
                         multiModeActivatorBean.mac = bean.mac // The MAC address of the device.
                         multiModeActivatorBean.ssid =
-                            "Gabriel" // The SSID of the target Wi-Fi network.
+                            "Gabriel " // The SSID of the target Wi-Fi network.
                         multiModeActivatorBean.pwd =
                             "n4JkVhAcUV" // The password of the target Wi-Fi network.
                         multiModeActivatorBean.token = currentToken // The pairing token.
@@ -101,22 +105,23 @@ class MainActivity : FlutterActivity() {
                         val listener: IMultiModeActivatorListener =
                             object : IMultiModeActivatorListener {
                                 override fun onSuccess(deviceBean: DeviceBean?) {
-                                    result.success(deviceBean)
-                                    Log.i("scan", "DEVICE BEAN ${deviceBean?.dpName.toString()}")
+                                    Log.i("devices", "DEVICE BEAN ${deviceBean?.dpName.toString()}")
+                                    Log.i("devices", "DEVICE BEAN ${deviceBean?.toString()}")
                                     Toast.makeText(
                                         context,
                                         deviceBean.toString(),
                                         Toast.LENGTH_LONG
                                     ).show()
+                                    result.success(deviceBean)
                                 }
 
                                 override fun onFailure(code: Int, msg: String?, handle: Any?) {
-                                    Log.i("scan", "MSG")
-                                    Log.i("scan", msg.toString())
-                                    Log.i("scan", "CODE")
-                                    Log.i("scan", code.toString())
-                                    Log.i("scan", "HANDLE")
-                                    Log.i("scan", handle.toString())
+                                    Log.i("devices", "MSG")
+                                    Log.i("devices", msg.toString())
+                                    Log.i("devices", "CODE")
+                                    Log.i("devices", code.toString())
+                                    Log.i("devices", "HANDLE")
+                                    Log.i("devices", handle.toString())
                                 }
                             }
 
@@ -134,7 +139,7 @@ class MainActivity : FlutterActivity() {
                     .setSsid("Gabriel ")
                     .setPassword("n4JkVhAcUV")
                     .setActivatorModel(ActivatorModelEnum.THING_EZ)
-                    .setTimeOut(1000)
+                    .setTimeOut(60000)
                     .setToken(token)
                     .setListener(object : IThingSmartActivatorListener {
                         override fun onError(errorCode: String?, errorMsg: String?) {
@@ -151,17 +156,15 @@ class MainActivity : FlutterActivity() {
                         }
 
                         override fun onActiveSuccess(devResp: DeviceBean?) {
+                            Log.i("devices", "ONACTIVESUCCESS")
                             Log.i("devices", devResp.toString())
                             Toast.makeText(
                                 context,
-                                devResp.toString(),
+                                "onActiveSuccess",
                                 Toast.LENGTH_SHORT
-                            )
-                                .show()
+                            ).show()
+                            Log.i("devices", devResp?.getDpCodes().toString())
                             currentDeviceBean = devResp
-                            Log.i("devices", devResp?.dps.toString())
-                            thingActivator?.stop()
-                            result.success(devResp.toString())
                         }
 
                         override fun onStep(step: String?, data: Any?) {
@@ -170,7 +173,7 @@ class MainActivity : FlutterActivity() {
                                 ActivatorEZStepCode.DEVICE_FIND ->
                                     Toast.makeText(
                                         context,
-                                        "devices",
+                                        "find",
                                         Toast.LENGTH_SHORT
                                     ).show()
 
@@ -178,26 +181,33 @@ class MainActivity : FlutterActivity() {
                                 ActivatorEZStepCode.DEVICE_BIND_SUCCESS ->
                                     Toast.makeText(
                                         context,
-                                        "devices",
+                                        "bind success",
                                         Toast.LENGTH_SHORT
                                     ).show()
                             }
                         }
                     })
-
                 thingActivator = ThingHomeSdk.getActivatorInstance().newMultiActivator(builder)
             }
 
+            fun getDeviceById() {
+                val device = ThingHomeSdk.newDeviceInstance(getDeviceId)
+                Log.i("devices", device.toString())
+                result.success(device)
+            }
+
             fun getRegistrationToken() {
-                val homeID = currentHomeBean?.homeId?.toLong()
-                Toast.makeText(context, "home: ${currentHomeBean?.homeId}", Toast.LENGTH_SHORT)
-                    .show()
-                if (homeID != null) {
+                val homeId = currentHomeBean?.homeId
+                if (homeId != null) {
+                    Toast.makeText(context, "home: $homeId", Toast.LENGTH_SHORT)
+                        .show()
                     ThingHomeSdk.getActivatorInstance().getActivatorToken(
-                        homeID,
+                        homeId,
                         object : IThingActivatorGetToken {
                             override fun onSuccess(token: String?) {
                                 if (token != null) {
+                                    Toast.makeText(context, "token: ${token}", Toast.LENGTH_SHORT)
+                                        .show()
                                     currentToken = token
                                     configThingActivatorToken(token)
                                     result.success(true)
@@ -219,15 +229,15 @@ class MainActivity : FlutterActivity() {
 
             fun createHome(homeName: String) {
                 ThingHomeSdk.getHomeManagerInstance().createHome(
-                    homeName,
+                    "Home",
                     0.0,
                     0.0,
                     null,
                     rooms,
                     object : IThingHomeResultCallback {
                         override fun onSuccess(bean: HomeBean?) {
-                            currentHomeBean = bean
                             Log.i("homebeans", bean.toString())
+                            result.success(bean?.homeId.toString())
                         }
 
                         override fun onError(errorCode: String?, errorMsg: String?) {
@@ -256,10 +266,12 @@ class MainActivity : FlutterActivity() {
                 }
             }
 
+            // methods
             if (call.method == ALREADY_LOGGED) {
                 val isLogged = ThingHomeSdk.getUserInstance().isLogin
                 result.success(isLogged)
             }
+
             if (call.method == SEND_CODE) {
                 ThingHomeSdk.getUserInstance().sendVerifyCodeWithUserName(
                     email.toString(),
@@ -279,6 +291,7 @@ class MainActivity : FlutterActivity() {
                     }
                 )
             }
+
             if (call.method == REGISTER) {
                 ThingHomeSdk.getUserInstance().registerAccountWithEmail(
                     countryCode.toString(),
@@ -298,6 +311,7 @@ class MainActivity : FlutterActivity() {
                     }
                 )
             }
+
             if (call.method == AUTHENTICATE) {
                 //String countryCode, String email, String passwd, final ILoginCallback callback
                 ThingHomeSdk.getUserInstance().loginWithEmail(
@@ -319,6 +333,7 @@ class MainActivity : FlutterActivity() {
                     }
                 )
             }
+
             if (call.method == LOGOUT) {
                 ThingHomeSdk.getUserInstance().logout(object : ILogoutCallback {
                     override fun onSuccess() {
@@ -332,6 +347,7 @@ class MainActivity : FlutterActivity() {
                     }
                 })
             }
+
             if (call.method == SEARCH_DEVICES) {
                 bluetoothScan { deviceBean ->
                     deviceBeanFounded = deviceBean
@@ -373,13 +389,14 @@ class MainActivity : FlutterActivity() {
                             }
                         })
                 }
-
             }
+
             if (call.method == STOP_SEARCH_DEVICES) {
                 ThingHomeSdk.getBleOperator().stopLeScan();
                 thingActivator?.stop()
                 result.success(true)
             }
+
             if (call.method == TURN_ON_OFF_BULB) {
                 ThingHomeSdk.getDeviceMultiControlInstance().getDeviceDpInfoList(
                     currentDeviceBean?.devId,
@@ -394,18 +411,18 @@ class MainActivity : FlutterActivity() {
                     }
                 )
             }
+
             if (call.method == GET_HOME_DEVICES) {
-                Log.i("devices", homeId.toString()) //172533729
-                Log.i("devices", "CURRENT HOME >>>>>>>>>>>>>>>>>>>")
-                Log.i("devices", currentHomeBean.toString())
+                Log.i("devices", homeId.toString())
                 if (homeIdLong != null) {
                     ThingHomeSdk.getHomeManagerInstance().queryHomeInfo(
                         homeIdLong,
                         object : IThingHomeResultCallback {
                             override fun onSuccess(bean: HomeBean?) {
-                                result.success(bean.toString())
-                                Log.i("devices", "DEVICES >>>>>>>>>>>>>>>>>>>")
+                                Log.i("devices", "Get home devices")
+                                Log.i("devices", homeIdLong.toString())
                                 Log.i("devices", bean.toString())
+                                result.success(bean.toString())
                             }
 
                             override fun onError(errorCode: String?, errorMsg: String?) {
@@ -416,6 +433,11 @@ class MainActivity : FlutterActivity() {
                     )
                 }
             }
+
+            if (call.method == CREATE_HOME) {
+                createHome("Home")
+            }
+
             if (call.method == CHECK_HOME_ALREADY_EXIST) {
                 ThingHomeSdk.getHomeManagerInstance()
                     .queryHomeList(object : IThingGetHomeListCallback {
@@ -431,7 +453,6 @@ class MainActivity : FlutterActivity() {
                             } else {
                                 createHome(homeName.toString())
                             }
-                            result.success(currentHomeBean?.homeId)
                             Log.i("homebeans", homeBeans.toString())
                         }
 
@@ -440,34 +461,24 @@ class MainActivity : FlutterActivity() {
                             Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show()
                         }
                     })
-            }
-            if (call.method == START_PAIR) {
-                // iniciar pareamento
-                thingActivator?.start()
-                Log.i("devices", currentDeviceBean.toString())
-            }
-            if (call.method == STOP_PAIR) {
-                // parar pareamento
-                thingActivator?.stop()
+
+                result.success(currentHomeBean?.homeId.toString())
             }
 
             if (call.method == START_PAIR_DEVICE_TYPE_301) {
-//                configComboDevicePairing()
-                var res = thingActivator?.start()
-                Log.i("devices", currentDeviceBean.toString())
-                result.success(currentDeviceBean.toString())
+                thingActivator?.start()
             }
 
             if (call.method == STOP_PAIR_DEVICE_TYPE_301) {
-//                deviceBeanFounded?.let { bean ->
-//                    ThingHomeSdk.getActivator().newMultiModeActivator().stopActivator(bean.uuid);
-//                }
                 thingActivator?.stop()
             }
 
             if (call.method == CONFIG_PAIR) {
-                // configurar pareamento
                 getRegistrationToken()
+            }
+
+            if (call.method == GET_DEVICES_PAIRED) {
+                getDeviceById()
             }
         }
     }
@@ -475,7 +486,7 @@ class MainActivity : FlutterActivity() {
     companion object {
         const val START_PAIR_DEVICE_TYPE_301 = "pair_device_301"
         const val STOP_PAIR_DEVICE_TYPE_301 = "stop_pair_device_301"
-
+        const val GET_DEVICES_PAIRED = "get_devices_paired"
         const val ALREADY_LOGGED = "already_logged"
         const val CHANNEL = "tuya_integration"
         const val SEND_CODE = "send_code"
@@ -494,7 +505,6 @@ class MainActivity : FlutterActivity() {
         const val TURN_ON_OFF_BULB = "turn_on_off_bulb"
         const val GET_HOME_DEVICES = "get_home_devices"
         const val CHECK_HOME_ALREADY_EXIST = "check_home_exist"
-        const val DEVICE_CONNECTED = "device_connected"
     }
 
 }

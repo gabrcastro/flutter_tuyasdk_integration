@@ -19,7 +19,7 @@ class Errors {
 class Methods {
   static const START_PAIR_DEVICE_TYPE_301 = "pair_device_301";
   static const STOP_PAIR_DEVICE_TYPE_301 = "stop_pair_device_301";
-
+  static const GET_DEVICES_PAIRED = "get_devices_paired";
   static const ALREADY_LOGGED = "already_logged";
   static const SEARCH = "search";
   static const CONFIG_PAIR = "config_pair";
