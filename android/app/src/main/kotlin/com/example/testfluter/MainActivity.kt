@@ -132,8 +132,7 @@ class MainActivity : FlutterActivity() {
                     }
                 }
             }
-
-            fun configThingActivatorToken(token: String) {
+            fun configThingActivatorToken(token: String?) {
                 val builder = ActivatorBuilder()
                     .setContext(context)
                     .setSsid("Gabriel ")
@@ -165,6 +164,7 @@ class MainActivity : FlutterActivity() {
                             ).show()
                             Log.i("devices", devResp?.getDpCodes().toString())
                             currentDeviceBean = devResp
+                            result.success(devResp?.devId) // isso esta fazendo o app fechar
                         }
 
                         override fun onStep(step: String?, data: Any?) {
@@ -189,20 +189,17 @@ class MainActivity : FlutterActivity() {
                     })
                 thingActivator = ThingHomeSdk.getActivatorInstance().newMultiActivator(builder)
             }
-
             fun getDeviceById() {
                 val device = ThingHomeSdk.newDeviceInstance(getDeviceId)
                 Log.i("devices", device.toString())
                 result.success(device)
             }
-
             fun getRegistrationToken() {
-                val homeId = currentHomeBean?.homeId
                 if (homeId != null) {
-                    Toast.makeText(context, "home: $homeId", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, "home: $homeIdLong", Toast.LENGTH_SHORT)
                         .show()
                     ThingHomeSdk.getActivatorInstance().getActivatorToken(
-                        homeId,
+                        homeId.toLong(),
                         object : IThingActivatorGetToken {
                             override fun onSuccess(token: String?) {
                                 if (token != null) {
@@ -226,7 +223,6 @@ class MainActivity : FlutterActivity() {
                     )
                 }
             }
-
             fun createHome(homeName: String) {
                 ThingHomeSdk.getHomeManagerInstance().createHome(
                     "Home",
@@ -236,6 +232,8 @@ class MainActivity : FlutterActivity() {
                     rooms,
                     object : IThingHomeResultCallback {
                         override fun onSuccess(bean: HomeBean?) {
+                            Toast.makeText(context, "Create Home Success", Toast.LENGTH_LONG)
+                                .show()
                             Log.i("homebeans", bean.toString())
                             result.success(bean?.homeId.toString())
                         }
@@ -247,7 +245,6 @@ class MainActivity : FlutterActivity() {
                     }
                 )
             }
-
             fun bluetoothScan(callback: (ScanDeviceBean?) -> Unit) {
 
                 var deviceBean: ScanDeviceBean? = null
@@ -271,7 +268,6 @@ class MainActivity : FlutterActivity() {
                 val isLogged = ThingHomeSdk.getUserInstance().isLogin
                 result.success(isLogged)
             }
-
             if (call.method == SEND_CODE) {
                 ThingHomeSdk.getUserInstance().sendVerifyCodeWithUserName(
                     email.toString(),
@@ -291,7 +287,6 @@ class MainActivity : FlutterActivity() {
                     }
                 )
             }
-
             if (call.method == REGISTER) {
                 ThingHomeSdk.getUserInstance().registerAccountWithEmail(
                     countryCode.toString(),
@@ -311,7 +306,6 @@ class MainActivity : FlutterActivity() {
                     }
                 )
             }
-
             if (call.method == AUTHENTICATE) {
                 //String countryCode, String email, String passwd, final ILoginCallback callback
                 ThingHomeSdk.getUserInstance().loginWithEmail(
@@ -333,7 +327,6 @@ class MainActivity : FlutterActivity() {
                     }
                 )
             }
-
             if (call.method == LOGOUT) {
                 ThingHomeSdk.getUserInstance().logout(object : ILogoutCallback {
                     override fun onSuccess() {
@@ -347,7 +340,6 @@ class MainActivity : FlutterActivity() {
                     }
                 })
             }
-
             if (call.method == SEARCH_DEVICES) {
                 bluetoothScan { deviceBean ->
                     deviceBeanFounded = deviceBean
@@ -390,13 +382,11 @@ class MainActivity : FlutterActivity() {
                         })
                 }
             }
-
             if (call.method == STOP_SEARCH_DEVICES) {
                 ThingHomeSdk.getBleOperator().stopLeScan();
                 thingActivator?.stop()
                 result.success(true)
             }
-
             if (call.method == TURN_ON_OFF_BULB) {
                 ThingHomeSdk.getDeviceMultiControlInstance().getDeviceDpInfoList(
                     currentDeviceBean?.devId,
@@ -411,7 +401,6 @@ class MainActivity : FlutterActivity() {
                     }
                 )
             }
-
             if (call.method == GET_HOME_DEVICES) {
                 Log.i("devices", homeId.toString())
                 if (homeIdLong != null) {
@@ -433,11 +422,9 @@ class MainActivity : FlutterActivity() {
                     )
                 }
             }
-
             if (call.method == CREATE_HOME) {
                 createHome("Home")
             }
-
             if (call.method == CHECK_HOME_ALREADY_EXIST) {
                 ThingHomeSdk.getHomeManagerInstance()
                     .queryHomeList(object : IThingGetHomeListCallback {
@@ -464,19 +451,15 @@ class MainActivity : FlutterActivity() {
 
                 result.success(currentHomeBean?.homeId.toString())
             }
-
-            if (call.method == START_PAIR_DEVICE_TYPE_301) {
+            if (call.method == START_PAIR) {
                 thingActivator?.start()
             }
-
-            if (call.method == STOP_PAIR_DEVICE_TYPE_301) {
+            if (call.method == STOP_PAIR) {
                 thingActivator?.stop()
             }
-
             if (call.method == CONFIG_PAIR) {
                 getRegistrationToken()
             }
-
             if (call.method == GET_DEVICES_PAIRED) {
                 getDeviceById()
             }

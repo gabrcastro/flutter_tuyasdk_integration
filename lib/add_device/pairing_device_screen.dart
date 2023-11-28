@@ -116,29 +116,40 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
     );
   }
 
-  Future<void> configNetwork() async {
-    var res = await channel.invokeMethod(Methods.CONFIG_PAIR,
-        <String, String>{"ssid": widget.ssid, "networkPasswd": widget.passwd});
+  configNetwork() async {
+    SharedPreferences prefs = await _prefs;
+    var homeID = prefs.getString("home_id");
 
-    if (res == true) {
-      pairDevice();
+    if (homeID != null || homeID != "") {
+      bool res = await channel.invokeMethod(Methods.CONFIG_PAIR, <String, String>{
+        "ssid": widget.ssid,
+        "networkPasswd": widget.passwd,
+        "home_id": homeID.toString()
+      });
+
+      if (res != null && res is bool && res) {
+        pairDevice(homeID.toString());
+      }
     }
   }
 
-  Future<void> pairDevice() async {
-
+  pairDevice(String homeId) async {
     final SharedPreferences prefs = await _prefs;
-
-    String? deviceID = await channel
-          .invokeMethod(Methods.START_PAIR_DEVICE_TYPE_301, <String, String>{
-          "home_id": prefs.getString("home_id").toString(),
+    String? deviceID =
+        await channel.invokeMethod(Methods.START_PAIR, <String, String>{
+      "home_id": homeId,
     });
+
+    prefs.setString("device_id", deviceID!);
+
+    print("deviceID");
+    print(deviceID);
   }
 
   Future<void> stopPairDevice() async {
     if (widget.typeDevice == Constants.TYPE_DEVICE_WIFI_1) {
       dynamic res = await channel.invokeMethod(
-          Methods.STOP_PAIR_DEVICE_TYPE_301, <String, String>{
+          Methods.STOP_PAIR, <String, String>{
         "ssid": widget.ssid,
         "networkPasswd": widget.passwd
       });

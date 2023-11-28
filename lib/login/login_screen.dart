@@ -58,28 +58,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                      margin: const EdgeInsets.only(top: 100),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.network(
-                            Strings.tuyaIconNetwork,
-                            width: 50,
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.only(left: 20, right: 5),
-                            child: Icon(
-                              Icons.add,
-                              color: AppColors.white,
-                            ),
-                          ),
-                          Image.network(
-                            Strings.houseasyIconNetwork,
-                            width: 70,
-                          ),
-                        ],
-                      )),
-                  Container(
                     child: Column(
                       children: [
                         const Padding(

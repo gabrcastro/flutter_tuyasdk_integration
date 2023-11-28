@@ -46,12 +46,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    _checkIsHomeCreated();
+
     _initializeUID();
     getPermissions();
-    getDevicePaired();
     homeBean = null;
     _getHomeList();
+
+    getSharedPreferences();
+
+    _checkSharedPreferencesHomeId().then((bool hasHomeId) {
+      if (!hasHomeId) {
+        createHome();
+      }
+    });
+
     super.initState();
   }
 
@@ -178,10 +186,19 @@ class _HomeScreenState extends State<HomeScreen> {
       dynamic device = channel.invokeMethod(Methods.GET_DEVICES_PAIRED, <String, String>{
         "get_device_id": deviceId
       });
+
+      print("devices paired");
+      print(device);
     }
   }
 
-  _checkIsHomeCreated() async {
+  Future<bool> _checkSharedPreferencesHomeId() async {
+    final SharedPreferences prefs = await _prefs;
+    String homeIdValue = prefs.getString("home_id") ?? "";
+    return homeIdValue != null && homeIdValue.isNotEmpty;
+  }
+
+  Future<void> createHome() async {
     final SharedPreferences prefs = await _prefs;
 
     String homeId = await channel.invokeMethod(Methods.CREATE_HOME,
@@ -197,6 +214,9 @@ class _HomeScreenState extends State<HomeScreen> {
         await channel.invokeMethod(Methods.GET_HOME_DEVICES, <String, String>{
       "home_id": prefs.getString("home_id").toString(),
     });
+
+    print("homeBean");
+    print(homeBean);
   }
 
   displayScanDevicesModalBottomSheet(context) {
@@ -234,5 +254,14 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       } //check each permission status after.
     }
+  }
+
+  getSharedPreferences() async {
+    SharedPreferences prefs = await _prefs;
+    var keys = prefs.getKeys();
+    var first = prefs.getString(keys.first);
+    print("sharedpreferences");
+    print(keys);
+    print(first);
   }
 }
