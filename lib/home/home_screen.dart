@@ -49,16 +49,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _initializeUID();
     getPermissions();
-    homeBean = null;
-    _getHomeList();
-
+    // _getHomeList();
     getSharedPreferences();
 
     _checkSharedPreferencesHomeId().then((bool hasHomeId) {
       if (!hasHomeId) {
-        createHome();
+        getHomeData();
+      } else {
+        getHomeDeviceList();
       }
     });
+
 
     super.initState();
   }
@@ -259,9 +260,24 @@ class _HomeScreenState extends State<HomeScreen> {
   getSharedPreferences() async {
     SharedPreferences prefs = await _prefs;
     var keys = prefs.getKeys();
-    var first = prefs.getString(keys.first);
+    var last = prefs.getString(keys.last);
     print("sharedpreferences");
     print(keys);
-    print(first);
+    print(last);
   }
+
+  getHomeData() async {
+    String? homeIdResult = await channel.invokeMethod("get_home_data", <String, String>{});
+    if (homeIdResult!.isNotEmpty) {
+      SharedPreferences prefs = await _prefs;
+      prefs.setString("home_id", homeIdResult);
+    }
+  }
+
+  getHomeDeviceList() async {
+    String? deviceList = await channel.invokeMethod("get_home_devices", <String, String>{});
+    print("deviceList");
+    print(deviceList);
+  }
+
 }

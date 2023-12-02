@@ -121,29 +121,28 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
     var homeID = prefs.getString("home_id");
 
     if (homeID != null || homeID != "") {
-      bool res = await channel.invokeMethod(Methods.CONFIG_PAIR, <String, String>{
+      String deviceID = await channel.invokeMethod(Methods.CONFIG_PAIR, <String, String>{
         "ssid": widget.ssid,
         "networkPasswd": widget.passwd,
         "home_id": homeID.toString()
       });
 
-      if (res != null && res is bool && res) {
-        pairDevice(homeID.toString());
-      }
+      print("###");
+      print(deviceID);
+
+      prefs.setString("device_id", deviceID);
     }
   }
 
   pairDevice(String homeId) async {
-    final SharedPreferences prefs = await _prefs;
-    String? deviceID =
-        await channel.invokeMethod(Methods.START_PAIR, <String, String>{
-      "home_id": homeId,
-    });
+    SharedPreferences prefs = await _prefs;
 
-    prefs.setString("device_id", deviceID!);
+      String? deviceID = await channel.invokeMethod(Methods.START_PAIR, <String, String>{
+        "home_id": homeId,
+      });
 
-    print("deviceID");
-    print(deviceID);
+      print("res");
+      print(deviceID);
   }
 
   Future<void> stopPairDevice() async {

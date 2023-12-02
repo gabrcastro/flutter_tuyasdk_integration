@@ -120,10 +120,6 @@ class _ConfigNetworkState extends State<ConfigNetwork> {
     );
   }
 
-  void pairDeviceTypeCombined() {
-
-  }
-
   void _navigateToPairingDeviceScreen() {
     Navigator.pushAndRemoveUntil(
       context,
