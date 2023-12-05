@@ -188,7 +188,14 @@ class _LoginScreenState extends State<LoginScreen> {
     if (uid == null) {
     } else {
       final SharedPreferences prefs = await _prefs;
+      // get userID
       prefs.setString("user_uid", uid);
+
+      // get homeID
+      String homeIdResult = await getHomeData();
+      prefs.setString("home_id", homeIdResult);
+
+      // go to home screen
       _navigateToHomeScreen();
     }
   }
@@ -197,7 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-        builder: (context) => HomeScreen(),
+        builder: (context) => const HomeScreen(),
       ),
       ModalRoute.withName('/home'),
     );
@@ -210,5 +217,21 @@ class _LoginScreenState extends State<LoginScreen> {
     if (isLoggedIn) {
       _navigateToHomeScreen();
     }
+  }
+
+  Future<bool> _checkSharedPreferencesHomeId() async {
+    final SharedPreferences prefs = await _prefs;
+    String homeIdValue = prefs.getString("home_id") ?? "";
+    return homeIdValue != null && homeIdValue.isNotEmpty;
+  }
+
+  getHomeData() async {
+    String? homeIdResult =
+    await channel.invokeMethod("get_home_data", <String, String>{});
+    if (homeIdResult!.isNotEmpty) {
+      return homeIdResult;
+    }
+
+    return "";
   }
 }

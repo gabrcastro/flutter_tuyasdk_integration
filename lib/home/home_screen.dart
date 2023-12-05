@@ -3,17 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:testfluter/DeviceModel.dart';
 import 'package:testfluter/add_device/components/add_device.dart';
+import 'package:testfluter/home/Device.dart';
 import 'package:testfluter/home/components/logout_widget.dart';
 import 'package:testfluter/res/colors.dart';
 import 'package:testfluter/res/strings.dart';
+import 'package:testfluter/res/themes.dart';
 import 'package:testfluter/utils/enums.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({Key? key, this.device, this.deviceConnected}) : super(key: key);
+  const HomeScreen({Key? key, this.device, this.deviceConnected})
+      : super(key: key);
 
-  String? device;
-  bool? deviceConnected;
+  final String? device;
+  final bool? deviceConnected;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -26,9 +30,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-  dynamic? devResp;
+  dynamic devResp;
   SampleItem? selectedMenu;
   List devices = [];
+  late List<Device> listOfDevices;
   String? uid;
   String? homeBean;
   List sampleItemValue = [
@@ -47,14 +52,6 @@ class _HomeScreenState extends State<HomeScreen> {
     // _getHomeList();
     getSharedPreferences();
 
-    _checkSharedPreferencesHomeId().then((bool hasHomeId) {
-      if (!hasHomeId) {
-        getHomeData();
-      } else {
-        getHomeDeviceList();
-      }
-    });
-
     getUserInfo();
 
     super.initState();
@@ -62,12 +59,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    bool showBottomSheet = false;
-
-    // if (widget.deviceConnected == true) {
-    //   _getHomeList();
-    // }
-
     return Scaffold(
       backgroundColor: const Color(0xFF000000),
       appBar: AppBar(
@@ -150,19 +141,35 @@ class _HomeScreenState extends State<HomeScreen> {
           decoration: const BoxDecoration(
             color: Colors.black87,
           ),
-          child: const Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
+          child: Column(
             children: [
-              Center(
-                child: Text(
-                  Strings.anyDevice,
-                  style: TextStyle(fontSize: 16.0, color: Colors.grey),
-                  textAlign: TextAlign.center,
+              Visibility(
+                visible: listOfDevices.isEmpty,
+                child: const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Center(
+                      child: Text(
+                        Strings.anyDevice,
+                        style: TextStyle(fontSize: 16.0, color: Colors.grey),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Visibility(
+                visible: listOfDevices.isNotEmpty,
+                child: Column(
+                  children: [
+                    Image.network(listOfDevices[0].iconUrl),
+                    Text(listOfDevices[0].name, style: AppTheme.appBarTitle),
+                  ],
                 ),
               ),
             ],
-          ),
+          )
         ),
       ),
     );
@@ -191,7 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<bool> _checkSharedPreferencesHomeId() async {
     final SharedPreferences prefs = await _prefs;
     String homeIdValue = prefs.getString("home_id") ?? "";
-    return homeIdValue != null && homeIdValue.isNotEmpty;
+    return homeIdValue.isNotEmpty;
   }
 
   Future<void> createHome() async {
@@ -261,34 +268,41 @@ class _HomeScreenState extends State<HomeScreen> {
     print(last);
   }
 
-  getHomeData() async {
-    String? homeIdResult =
-        await channel.invokeMethod("get_home_data", <String, String>{});
-    if (homeIdResult!.isNotEmpty) {
-      SharedPreferences prefs = await _prefs;
-      prefs.setString("home_id", homeIdResult);
-    }
-  }
+  // getHomeDeviceList() async {
+  //   SharedPreferences prefs = await _prefs;
+  //   String? homeId = prefs.getString("home_id");
+  //   if (homeId != null && homeId.isNotEmpty) {
+  //     String? deviceList =
+  //     await channel.invokeMethod("get_home_devices", <String, String>{
+  //       "home_id": homeId.toString()
+  //     });
+  //     print("deviceList");
+  //     print(deviceList);
+  //   }
+  // }
 
-  getHomeDeviceList() async {
+  Future<void> getUserInfo() async {
     SharedPreferences prefs = await _prefs;
-    String? homeId = prefs.getString("home_id");
-    if (homeId != null && homeId.isNotEmpty) {
-      String? deviceList =
-      await channel.invokeMethod("get_home_devices", <String, String>{
-        "home_id": homeId.toString()
-      });
-      print("deviceList");
-      print(deviceList);
-    }
-  }
+    String? info = await channel.invokeMethod("get_user_info",
+        <String, String>{"home_id": prefs.getString("home_id")!});
 
-  getUserInfo() async {
-    SharedPreferences prefs = await _prefs;
-    String? homeId = prefs.getString("home_id");
-    if (homeId != null && homeId.isNotEmpty) {
-      await channel.invokeMethod("get_user_info", <String, String>{
-        "home_id": homeId.toString()
+    print("getUserInfo");
+    print(info);
+
+    if (info != null && info.isNotEmpty) {
+
+      String infoElements = info.substring(1, info.length - 1);
+      List<String> elements = infoElements.split(', ');
+
+
+      setState(() {
+        listOfDevices.add(
+            Device(
+                id: elements[1],
+                name: elements[0],
+                iconUrl: elements[2]
+            )
+        );
       });
     }
   }

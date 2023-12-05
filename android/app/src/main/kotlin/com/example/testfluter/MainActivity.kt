@@ -27,6 +27,7 @@ import com.thingclips.smart.home.sdk.bean.HomeBean
 import com.thingclips.smart.home.sdk.builder.ActivatorBuilder
 import com.thingclips.smart.home.sdk.callback.IThingGetHomeListCallback
 import com.thingclips.smart.home.sdk.callback.IThingHomeResultCallback
+import com.thingclips.smart.home.sdk.callback.IThingResultCallback
 import com.thingclips.smart.sdk.api.IMultiModeActivatorListener
 import com.thingclips.smart.sdk.api.IResultCallback
 import com.thingclips.smart.sdk.api.IThingActivator
@@ -67,9 +68,9 @@ class MainActivity : FlutterActivity() {
 
     ThingHomeSdk.setDebugMode(true)
     ThingHomeSdk.init(
-        application,
-        "9uhxr4vup89da4afxjut",
-        "3hpra89jcrfrk84cqrd5s79yhpwjhncy"
+      application,
+      "9uhxr4vup89da4afxjut",
+      "3hpra89jcrfrk84cqrd5s79yhpwjhncy"
     )
 
     var deviceExist = false
@@ -89,18 +90,18 @@ class MainActivity : FlutterActivity() {
 
       fun configComboDevicePairing() {
         val multiModeActivatorBean: MultiModeActivatorBean =
-            MultiModeActivatorBean(deviceBeanFounded)
+          MultiModeActivatorBean(deviceBeanFounded)
         currentHomeBean?.let { home ->
           deviceBeanFounded?.let { bean ->
             multiModeActivatorBean.deviceType = bean.deviceType // The type of device.
             multiModeActivatorBean.uuid = bean.uuid // The UUID of the device.
             multiModeActivatorBean.address =
-                bean.address // The IP address of the device.
+              bean.address // The IP address of the device.
             multiModeActivatorBean.mac = bean.mac // The MAC address of the device.
             multiModeActivatorBean.ssid =
-                "Gabriel " // The SSID of the target Wi-Fi network.
+              "Gabriel " // The SSID of the target Wi-Fi network.
             multiModeActivatorBean.pwd =
-                "n4JkVhAcUV" // The password of the target Wi-Fi network.
+              "n4JkVhAcUV" // The password of the target Wi-Fi network.
             multiModeActivatorBean.token = currentToken // The pairing token.
             multiModeActivatorBean.timeout = 120 * 1000L
             multiModeActivatorBean.phase1Timeout = 60 * 1000L
@@ -108,31 +109,31 @@ class MainActivity : FlutterActivity() {
             multiModeActivatorBean.productId = bean.productId
 
             val listener: IMultiModeActivatorListener =
-                object : IMultiModeActivatorListener {
-                  override fun onSuccess(deviceBean: DeviceBean?) {
-                    Log.i("devices", "DEVICE BEAN ${deviceBean?.dpName.toString()}")
-                    Log.i("devices", "DEVICE BEAN ${deviceBean?.toString()}")
-                    Toast.makeText(
-                        context,
-                        deviceBean.toString(),
-                        Toast.LENGTH_LONG
-                    ).show()
-                    result.success(deviceBean)
-                  }
-
-                  override fun onFailure(code: Int, msg: String?, handle: Any?) {
-                    Log.i("devices", "MSG")
-                    Log.i("devices", msg.toString())
-                    Log.i("devices", "CODE")
-                    Log.i("devices", code.toString())
-                    Log.i("devices", "HANDLE")
-                    Log.i("devices", handle.toString())
-                  }
+              object : IMultiModeActivatorListener {
+                override fun onSuccess(deviceBean: DeviceBean?) {
+                  Log.i("devices", "DEVICE BEAN ${deviceBean?.dpName.toString()}")
+                  Log.i("devices", "DEVICE BEAN ${deviceBean?.toString()}")
+                  Toast.makeText(
+                    context,
+                    deviceBean.toString(),
+                    Toast.LENGTH_LONG
+                  ).show()
+                  result.success(deviceBean)
                 }
 
+                override fun onFailure(code: Int, msg: String?, handle: Any?) {
+                  Log.i("devices", "MSG")
+                  Log.i("devices", msg.toString())
+                  Log.i("devices", "CODE")
+                  Log.i("devices", code.toString())
+                  Log.i("devices", "HANDLE")
+                  Log.i("devices", handle.toString())
+                }
+              }
+
             ThingHomeSdk.getActivator().newMultiModeActivator().startActivator(
-                multiModeActivatorBean,
-                listener
+              multiModeActivatorBean,
+              listener
             )
           }
         }
@@ -145,67 +146,67 @@ class MainActivity : FlutterActivity() {
       fun configThingActivator(token: String) {
         var deviceId: String = ""
         val builder = ActivatorBuilder()
-            .setContext(context)
-            .setSsid("Gabriel ")
-            .setPassword("n4JkVhAcUV")
-            .setActivatorModel(ActivatorModelEnum.THING_EZ)
-            .setTimeOut(60000)
-            .setToken(token)
-            .setListener(object : IThingSmartActivatorListener {
-              override fun onError(errorCode: String?, errorMsg: String?) {
-                Log.i(
-                    "devices",
-                    "error: ${errorMsg.toString()}"
-                )
-                Toast.makeText(
+          .setContext(context)
+          .setSsid("Gabriel ")
+          .setPassword("n4JkVhAcUV")
+          .setActivatorModel(ActivatorModelEnum.THING_EZ)
+          .setTimeOut(60000)
+          .setToken(token)
+          .setListener(object : IThingSmartActivatorListener {
+            override fun onError(errorCode: String?, errorMsg: String?) {
+              Log.i(
+                "devices",
+                "error: ${errorMsg.toString()}"
+              )
+              Toast.makeText(
+                context,
+                errorMsg.toString(),
+                Toast.LENGTH_SHORT
+              )
+                .show()
+            }
+
+            override fun onActiveSuccess(devResp: DeviceBean?) {
+              Log.i("devices", "ONACTIVESUCCESS")
+              Log.i("devices", devResp.toString())
+              Toast.makeText(
+                context,
+                "onActiveSuccess",
+                Toast.LENGTH_SHORT
+              ).show()
+              Log.i("devices", devResp?.getDpCodes().toString())
+
+              devResp?.let { device ->
+                currentDeviceBean = device
+                deviceFounded = true
+                currentDeviceId = device.devId
+                Log.i("devices", "DEV ID")
+                Log.i("devices", device.devId)
+
+                result.success(device.devId)
+              }
+            }
+
+            override fun onStep(step: String?, data: Any?) {
+              Log.i("devices", "step: ${data.toString()}")
+              when (step) {
+                ActivatorEZStepCode.DEVICE_FIND ->
+                  Toast.makeText(
                     context,
-                    errorMsg.toString(),
+                    "find",
                     Toast.LENGTH_SHORT
-                )
-                    .show()
-              }
+                  ).show()
 
-              override fun onActiveSuccess(devResp: DeviceBean?) {
-                Log.i("devices", "ONACTIVESUCCESS")
-                Log.i("devices", devResp.toString())
-                Toast.makeText(
+
+                ActivatorEZStepCode.DEVICE_BIND_SUCCESS ->
+                  Toast.makeText(
                     context,
-                    "onActiveSuccess",
+                    "bind success",
                     Toast.LENGTH_SHORT
-                ).show()
-                Log.i("devices", devResp?.getDpCodes().toString())
-
-                devResp?.let { device ->
-                  currentDeviceBean = device
-                  deviceFounded = true
-                  currentDeviceId = device.devId
-                  Log.i("devices", "DEV ID")
-                  Log.i("devices", device.devId)
-                  
-                  result.success(device.devId)
-                }
+                  ).show()
               }
-
-              override fun onStep(step: String?, data: Any?) {
-                Log.i("devices", "step: ${data.toString()}")
-                when (step) {
-                  ActivatorEZStepCode.DEVICE_FIND ->
-                    Toast.makeText(
-                        context,
-                        "find",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
-
-                  ActivatorEZStepCode.DEVICE_BIND_SUCCESS ->
-                    Toast.makeText(
-                        context,
-                        "bind success",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-              }
-            })
+            }
+          })
         thingActivator = ThingHomeSdk.getActivatorInstance().newMultiActivator(builder)
       }
 
@@ -219,127 +220,132 @@ class MainActivity : FlutterActivity() {
         val homeIdLong = homeId?.toLongOrNull()
         if (!homeId.isNullOrBlank()) {
           Toast.makeText(context, "home: $homeIdLong", Toast.LENGTH_SHORT)
-              .show()
+            .show()
           ThingHomeSdk.getActivatorInstance().getActivatorToken(
-              homeId.toLong(),
-              object : IThingActivatorGetToken {
-                override fun onSuccess(token: String?) {
-                  if (token != null) {
-                    Toast.makeText(context, "token: ${token}", Toast.LENGTH_SHORT)
-                        .show()
-                    currentToken = token
-                    val builder = ActivatorBuilder()
-                        .setContext(context)
-                        .setSsid("Gabriel ")
-                        .setPassword("n4JkVhAcUV")
-                        .setActivatorModel(ActivatorModelEnum.THING_EZ)
-                        .setTimeOut(60000)
-                        .setToken(token)
-                        .setListener(object : IThingSmartActivatorListener {
-                          override fun onError(errorCode: String?, errorMsg: String?) {
-                            Log.i(
-                                "devices",
-                                "error: ${errorMsg.toString()}"
-                            )
-                            Toast.makeText(
-                                context,
-                                errorMsg.toString(),
-                                Toast.LENGTH_SHORT
-                            )
-                                .show()
-                          }
+            homeId.toLong(),
+            object : IThingActivatorGetToken {
+              override fun onSuccess(token: String?) {
+                if (token != null) {
+                  Toast.makeText(context, "token: ${token}", Toast.LENGTH_SHORT)
+                    .show()
+                  currentToken = token
+                  val builder = ActivatorBuilder()
+                    .setContext(context)
+                    .setSsid("Gabriel ")
+                    .setPassword("n4JkVhAcUV")
+                    .setActivatorModel(ActivatorModelEnum.THING_EZ)
+                    .setTimeOut(60000)
+                    .setToken(token)
+                    .setListener(object : IThingSmartActivatorListener {
+                      override fun onError(errorCode: String?, errorMsg: String?) {
+                        Log.i(
+                          "devices",
+                          "error: ${errorMsg.toString()}"
+                        )
+                        Toast.makeText(
+                          context,
+                          errorMsg.toString(),
+                          Toast.LENGTH_SHORT
+                        )
+                          .show()
+                      }
 
-                          override fun onActiveSuccess(devResp: DeviceBean?) {
-                            Log.i("devices", "ONACTIVESUCCESS")
-                            Log.i("devices", devResp.toString())
+                      override fun onActiveSuccess(devResp: DeviceBean?) {
+                        Log.i("devices", "ONACTIVESUCCESS")
+                        Log.i("devices", devResp.toString())
+                        Toast.makeText(
+                          context,
+                          "onActiveSuccess",
+                          Toast.LENGTH_SHORT
+                        ).show()
+                        Log.i("devices", devResp?.getDpCodes().toString())
+
+                        devResp?.let { device ->
+                          currentDeviceBean = device
+                          deviceFounded = true
+                          currentDeviceId = device.devId
+                          Log.i("devices", "DEV ID")
+                          Log.i("devices", device.devId)
+
+                          val devicesList = listOf(device.devId)
+
+                          Log.i("devices", "bindNewConfigDevs")
+                          Log.i("devices", device.productBean.toString())
+                          Log.i("devices", device.getProductId().toString())
+
+                          ThingHomeSdk.newHomeInstance(homeId.toLong())
+                            .createGroup(
+                              device.getProductId(),
+                              device.getName(),
+                              devicesList,
+                              object: IThingResultCallback<Long> {
+                                override fun onSuccess(result: Long?) {
+                                  Log.i("devices", result.toString())
+                                }
+
+                                override fun onError(errorCode: String?, errorMessage: String?) {
+                                  Log.i("devices", errorMessage.toString())
+                                }
+                              }
+                            )
+
+                          result.success(device.devId)
+                        }
+                      }
+
+                      override fun onStep(step: String?, data: Any?) {
+                        Log.i("devices", "step: ${data.toString()}")
+                        when (step) {
+                          ActivatorEZStepCode.DEVICE_FIND ->
                             Toast.makeText(
-                                context,
-                                "onActiveSuccess",
-                                Toast.LENGTH_SHORT
+                              context,
+                              "find",
+                              Toast.LENGTH_SHORT
                             ).show()
-                            Log.i("devices", devResp?.getDpCodes().toString())
-
-                            devResp?.let { device ->
-                              currentDeviceBean = device
-                              deviceFounded = true
-                              currentDeviceId = device.devId
-                              Log.i("devices", "DEV ID")
-                              Log.i("devices", device.devId)
-
-                              val devicesList = listOf(device.devId)
-
-                              Log.i("devices", "bindNewConfigDevs")
-                              ThingHomeSdk.newHomeInstance(homeId.toLong())
-                                  .bindNewConfigDevs(
-                                      devicesList,
-                                      object : IResultCallback {
-                                        override fun onError(code: String?, error: String?) {
-                                          Log.i("devices", error.toString())
-                                        }
-
-                                        override fun onSuccess() {
-                                          Log.i("devices", "success bindNewConfigDevs");
-                                        }
-                                      }
-                                  )
-
-                              result.success(device.devId)
-                            }
-                          }
-
-                          override fun onStep(step: String?, data: Any?) {
-                            Log.i("devices", "step: ${data.toString()}")
-                            when (step) {
-                              ActivatorEZStepCode.DEVICE_FIND ->
-                                Toast.makeText(
-                                    context,
-                                    "find",
-                                    Toast.LENGTH_SHORT
-                                ).show()
 
 
-                              ActivatorEZStepCode.DEVICE_BIND_SUCCESS ->
-                                Toast.makeText(
-                                    context,
-                                    "bind success",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                          }
-                        })
-                    thingActivator = ThingHomeSdk.getActivatorInstance().newMultiActivator(builder)
-                    thingActivator?.start()
-                  }
-                }
-
-                override fun onFailure(errorCode: String?, errorMsg: String?) {
-                  Log.i("devices", errorMsg.toString())
+                          ActivatorEZStepCode.DEVICE_BIND_SUCCESS ->
+                            Toast.makeText(
+                              context,
+                              "bind success",
+                              Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                      }
+                    })
+                  thingActivator = ThingHomeSdk.getActivatorInstance().newMultiActivator(builder)
+                  thingActivator?.start()
                 }
               }
+
+              override fun onFailure(errorCode: String?, errorMsg: String?) {
+                Log.i("devices", errorMsg.toString())
+              }
+            }
           )
         }
       }
 
       fun createHome(homeName: String) {
         ThingHomeSdk.getHomeManagerInstance().createHome(
-            "Home",
-            0.0,
-            0.0,
-            null,
-            rooms,
-            object : IThingHomeResultCallback {
-              override fun onSuccess(bean: HomeBean?) {
-                Toast.makeText(context, "Create Home Success", Toast.LENGTH_LONG)
-                    .show()
-                Log.i("homebeans", bean.toString())
-                result.success(bean?.homeId.toString())
-              }
-
-              override fun onError(errorCode: String?, errorMsg: String?) {
-                Toast.makeText(context, "Error home created", Toast.LENGTH_LONG)
-                    .show()
-              }
+          "Home",
+          0.0,
+          0.0,
+          null,
+          rooms,
+          object : IThingHomeResultCallback {
+            override fun onSuccess(bean: HomeBean?) {
+              Toast.makeText(context, "Create Home Success", Toast.LENGTH_LONG)
+                .show()
+              Log.i("homebeans", bean.toString())
+              result.success(bean?.homeId.toString())
             }
+
+            override fun onError(errorCode: String?, errorMsg: String?) {
+              Toast.makeText(context, "Error home created", Toast.LENGTH_LONG)
+                .show()
+            }
+          }
         )
       }
 
@@ -350,12 +356,12 @@ class MainActivity : FlutterActivity() {
         Toast.makeText(context, "Blueetooth Scan", Toast.LENGTH_SHORT).show()
 
         val scanSetting = LeScanSetting.Builder()
-            .setTimeout(60000)
-            .addScanType(ScanType.SINGLE)
-            .build()
+          .setTimeout(60000)
+          .addScanType(ScanType.SINGLE)
+          .build()
 
         ThingHomeSdk.getBleOperator().startLeScan(
-            scanSetting
+          scanSetting
         ) { bean ->
           callback(bean)
         }
@@ -368,61 +374,61 @@ class MainActivity : FlutterActivity() {
       }
       if (call.method == SEND_CODE) {
         ThingHomeSdk.getUserInstance().sendVerifyCodeWithUserName(
-            email.toString(),
-            "",
-            countryCode.toString(),
-            1,
-            object : IResultCallback {
-              override fun onError(code: String?, error: String?) {
-                Toast.makeText(context, "Erro: $code - $error", Toast.LENGTH_LONG)
-                    .show()
-              }
-
-              override fun onSuccess() {
-                Toast.makeText(context, "Codigo enviado", Toast.LENGTH_LONG)
-                    .show()
-              }
+          email.toString(),
+          "",
+          countryCode.toString(),
+          1,
+          object : IResultCallback {
+            override fun onError(code: String?, error: String?) {
+              Toast.makeText(context, "Erro: $code - $error", Toast.LENGTH_LONG)
+                .show()
             }
+
+            override fun onSuccess() {
+              Toast.makeText(context, "Codigo enviado", Toast.LENGTH_LONG)
+                .show()
+            }
+          }
         )
       }
       if (call.method == REGISTER) {
         ThingHomeSdk.getUserInstance().registerAccountWithEmail(
-            countryCode.toString(),
-            email.toString(),
-            password.toString(),
-            code.toString(),
-            object : IRegisterCallback {
-              override fun onSuccess(user: User?) {
-                Toast.makeText(context, "User: $user", Toast.LENGTH_LONG)
-                    .show()
-              }
-
-              override fun onError(code: String?, error: String?) {
-                Toast.makeText(context, "Erro: $code - $error", Toast.LENGTH_LONG)
-                    .show()
-              }
+          countryCode.toString(),
+          email.toString(),
+          password.toString(),
+          code.toString(),
+          object : IRegisterCallback {
+            override fun onSuccess(user: User?) {
+              Toast.makeText(context, "User: $user", Toast.LENGTH_LONG)
+                .show()
             }
+
+            override fun onError(code: String?, error: String?) {
+              Toast.makeText(context, "Erro: $code - $error", Toast.LENGTH_LONG)
+                .show()
+            }
+          }
         )
       }
       if (call.method == AUTHENTICATE) {
         //String countryCode, String email, String passwd, final ILoginCallback callback
         ThingHomeSdk.getUserInstance().loginWithEmail(
-            countryCode.toString(),
-            email.toString(),
-            password.toString(),
-            object : ILoginCallback {
-              override fun onSuccess(user: User?) {
-                user?.let {
-                  result.success(it.uid)
-                }
-              }
-
-              override fun onError(code: String?, error: String?) {
-                if (code != null && error != null) {
-                  result.error(code, error, null)
-                };
+          countryCode.toString(),
+          email.toString(),
+          password.toString(),
+          object : ILoginCallback {
+            override fun onSuccess(user: User?) {
+              user?.let {
+                result.success(it.uid)
               }
             }
+
+            override fun onError(code: String?, error: String?) {
+              if (code != null && error != null) {
+                result.error(code, error, null)
+              };
+            }
+          }
         )
       }
       if (call.method == LOGOUT) {
@@ -445,39 +451,39 @@ class MainActivity : FlutterActivity() {
           Toast.makeText(context, deviceBean?.data.toString(), Toast.LENGTH_SHORT).show()
 
           ThingHomeSdk.getActivatorInstance().getActivatorDeviceInfo(
-              deviceBean?.productId,
-              deviceBean?.uuid,
-              deviceBean?.mac,
-              object : IThingDataCallback<ConfigProductInfoBean> {
-                override fun onSuccess(resConfigProductInfoBean: ConfigProductInfoBean?) {
-                  Log.i(
-                      "scan",
-                      "getDeviceInfo: ${resConfigProductInfoBean?.toString()}"
+            deviceBean?.productId,
+            deviceBean?.uuid,
+            deviceBean?.mac,
+            object : IThingDataCallback<ConfigProductInfoBean> {
+              override fun onSuccess(resConfigProductInfoBean: ConfigProductInfoBean?) {
+                Log.i(
+                  "scan",
+                  "getDeviceInfo: ${resConfigProductInfoBean?.toString()}"
+                )
+                Toast.makeText(
+                  context,
+                  deviceBean?.data.toString(),
+                  Toast.LENGTH_SHORT
+                ).show()
+
+                if (resConfigProductInfoBean?.name != null) {
+                  var deviceFound = arrayListOf(
+                    resConfigProductInfoBean.name.toString(),
+                    resConfigProductInfoBean.icon.toString(),
+                    deviceBean?.deviceType
                   )
-                  Toast.makeText(
-                      context,
-                      deviceBean?.data.toString(),
-                      Toast.LENGTH_SHORT
-                  ).show()
-
-                  if (resConfigProductInfoBean?.name != null) {
-                    var deviceFound = arrayListOf(
-                        resConfigProductInfoBean.name.toString(),
-                        resConfigProductInfoBean.icon.toString(),
-                        deviceBean?.deviceType
-                    )
 
 
-                    result.success(deviceFound)
-                  }
+                  result.success(deviceFound)
                 }
+              }
 
-                override fun onError(errorCode: String?, errorMessage: String?) {
-                  Log.i("scan", "error getDeviceInfo: ${errorCode.toString()}")
-                  Toast.makeText(context, errorMessage.toString(), Toast.LENGTH_SHORT)
-                      .show()
-                }
-              })
+              override fun onError(errorCode: String?, errorMessage: String?) {
+                Log.i("scan", "error getDeviceInfo: ${errorCode.toString()}")
+                Toast.makeText(context, errorMessage.toString(), Toast.LENGTH_SHORT)
+                  .show()
+              }
+            })
         }
       }
       if (call.method == STOP_SEARCH_DEVICES) {
@@ -487,16 +493,16 @@ class MainActivity : FlutterActivity() {
       }
       if (call.method == TURN_ON_OFF_BULB) {
         ThingHomeSdk.getDeviceMultiControlInstance().getDeviceDpInfoList(
-            currentDeviceBean?.devId,
-            object : IThingDataCallback<ArrayList<DeviceDpInfoBean>> {
-              override fun onSuccess(result: ArrayList<DeviceDpInfoBean>?) {
-                Log.i("turn_on", result.toString())
-              }
-
-              override fun onError(errorCode: String?, errorMessage: String?) {
-                Log.i("turn_on", errorMessage.toString())
-              }
+          currentDeviceBean?.devId,
+          object : IThingDataCallback<ArrayList<DeviceDpInfoBean>> {
+            override fun onSuccess(result: ArrayList<DeviceDpInfoBean>?) {
+              Log.i("turn_on", result.toString())
             }
+
+            override fun onError(errorCode: String?, errorMessage: String?) {
+              Log.i("turn_on", errorMessage.toString())
+            }
+          }
         )
       }
       if (call.method == GET_HOME_DEVICES) {
@@ -504,20 +510,20 @@ class MainActivity : FlutterActivity() {
         val homeIdLong = homeId?.toLongOrNull()
         if (homeIdLong != null) {
           ThingHomeSdk.getHomeManagerInstance().queryHomeInfo(
-              homeIdLong,
-              object : IThingHomeResultCallback {
-                override fun onSuccess(bean: HomeBean?) {
-                  Log.i("devices", "Get home devices")
-                  Log.i("devices", homeIdLong.toString())
-                  Log.i("devices", bean.toString())
-                  result.success(bean.toString())
-                }
-
-                override fun onError(errorCode: String?, errorMsg: String?) {
-                  Log.i("devices", "DEVICES >>>>>>>>>>>>>>>>>>>")
-                  Log.i("devices", errorMsg.toString())
-                }
+            homeIdLong,
+            object : IThingHomeResultCallback {
+              override fun onSuccess(bean: HomeBean?) {
+                Log.i("devices", "Get home devices")
+                Log.i("devices", homeIdLong.toString())
+                Log.i("devices", bean.toString())
+                result.success(bean.toString())
               }
+
+              override fun onError(errorCode: String?, errorMsg: String?) {
+                Log.i("devices", "DEVICES >>>>>>>>>>>>>>>>>>>")
+                Log.i("devices", errorMsg.toString())
+              }
+            }
           )
         }
       }
@@ -526,27 +532,27 @@ class MainActivity : FlutterActivity() {
       }
       if (call.method == CHECK_HOME_ALREADY_EXIST) {
         ThingHomeSdk.getHomeManagerInstance()
-            .queryHomeList(object : IThingGetHomeListCallback {
-              override fun onSuccess(homeBeans: MutableList<HomeBean>?) {
-                if (homeBeans != null) {
-                  for (homeBean in homeBeans) {
-                    if (homeBean.name == "Home") {
-                      currentHomeBean = homeBean
-                    } else {
-                      createHome(homeName.toString())
-                    }
+          .queryHomeList(object : IThingGetHomeListCallback {
+            override fun onSuccess(homeBeans: MutableList<HomeBean>?) {
+              if (homeBeans != null) {
+                for (homeBean in homeBeans) {
+                  if (homeBean.name == "Home") {
+                    currentHomeBean = homeBean
+                  } else {
+                    createHome(homeName.toString())
                   }
-                } else {
-                  createHome(homeName.toString())
                 }
-                Log.i("homebeans", homeBeans.toString())
+              } else {
+                createHome(homeName.toString())
               }
+              Log.i("homebeans", homeBeans.toString())
+            }
 
-              override fun onError(errorCode: String?, error: String?) {
-                Log.i("homebeans", error.toString())
-                Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show()
-              }
-            })
+            override fun onError(errorCode: String?, error: String?) {
+              Log.i("homebeans", error.toString())
+              Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show()
+            }
+          })
 
         result.success(currentHomeBean?.homeId.toString())
       }
@@ -586,24 +592,24 @@ class MainActivity : FlutterActivity() {
 //                }
 
         ThingHomeSdk.getHomeManagerInstance().queryHomeList(
-            object : IThingGetHomeListCallback {
-              override fun onSuccess(homeBeans: MutableList<HomeBean>?) {
-                val homeAlredyCreated = homeBeans?.first { home ->
-                  home.name == "Home"
-                }
-                Log.i("homelist", homeAlredyCreated.toString())
-
-                if (homeAlredyCreated != null) {
-                  result.success(homeAlredyCreated.homeId.toString())
-                } else {
-                  createHome("Home");
-                }
+          object : IThingGetHomeListCallback {
+            override fun onSuccess(homeBeans: MutableList<HomeBean>?) {
+              val homeAlredyCreated = homeBeans?.first { home ->
+                home.name == "Home"
               }
+              Log.i("homelist", homeAlredyCreated.toString())
 
-              override fun onError(errorCode: String?, error: String?) {
-                Log.i("homelist", error.toString())
+              if (homeAlredyCreated != null) {
+                result.success(homeAlredyCreated.homeId.toString())
+              } else {
+                createHome("Home");
               }
             }
+
+            override fun onError(errorCode: String?, error: String?) {
+              Log.i("homelist", error.toString())
+            }
+          }
         )
       }
       if (call.method == "get_home_devices") {
@@ -623,32 +629,42 @@ class MainActivity : FlutterActivity() {
         if (homeId != null) {
           Log.i("devices", "get_user_info")
 
-          ThingHomeSdk.newHomeInstance(homeId)
-              .let { home ->
-                Log.i("devices", home.homeBean.toString())
-                
-                home.getHomeDetail(object: IThingHomeResultCallback {
-                  override fun onSuccess(bean: HomeBean?) {
-                    Log.i("devices", bean.toString())
-                  }
+          val homeInstance = ThingHomeSdk.newHomeInstance(homeId)
+          if (homeInstance != null) {
+            Log.i("devices", "homeInstance isnt null")
+            homeInstance.getHomeDetail(
+              object : IThingHomeResultCallback {
+                override fun onSuccess(bean: HomeBean?) {
+                  if (bean != null) {
+                    Log.i("devices", "bean")
+                    Log.i("devices", bean.name.toString())
+                    Log.i("devices", bean.deviceList.first().toString())
+                    Log.i("devices", bean.groupList.first().toString())
+                    Log.i("devices", bean.rooms.toString())
 
-                  override fun onError(errorCode: String?, errorMsg: String?) {
-                    Log.i("devices", errorMsg.toString())
+                    val device = bean.deviceList.first()
+                    val deviceInfo = listOf(device.getName(), device.devId, device.getIconUrl())
+                    result.success(deviceInfo.toString())
                   }
-                })
+                }
 
-                home.getHomeLocalCache(object: IThingHomeResultCallback {
-                  override fun onSuccess(bean: HomeBean?) {
-                    Log.i("devices", bean.toString())
-                  }
-
-                  override fun onError(errorCode: String?, errorMsg: String?) {
-                    Log.i("devices", errorMsg.toString())
-                  }
-                })
+                override fun onError(errorCode: String?, errorMsg: String?) {
+                  Log.i("devices", "on error")
+                  Log.i("devices", errorMsg.toString())
+                }
               }
+            )
+          }
+
+//          Log.i("devices", "homeBeanNewInstance")
+//          home.homeBean?.let { bean ->
+//            val groupList = bean.groupList.toString()
+//            val deviceList = bean.deviceList.toString()
+//            val someInfo = listOf(groupList, deviceList)
+//            result.success(someInfo.toString())
+//          }
         }
-        
+
       }
 
     }
