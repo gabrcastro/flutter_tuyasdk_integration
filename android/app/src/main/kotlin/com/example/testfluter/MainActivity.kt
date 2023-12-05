@@ -4,6 +4,7 @@ import android.util.Log
 import android.widget.Toast
 import com.example.testfluter.scan.DeviceFound
 import com.example.testfluter.scan.ScanDevice
+import com.thingclips.sdk.home.bean.ThingListDataBean
 import com.thingclips.smart.activator.core.kit.ThingActivatorCoreKit
 import com.thingclips.smart.activator.core.kit.bean.ThingActivatorScanKey
 import com.thingclips.smart.activator.core.kit.bean.ThingDeviceActiveErrorBean
@@ -180,6 +181,7 @@ class MainActivity : FlutterActivity() {
                   currentDeviceId = device.devId
                   Log.i("devices", "DEV ID")
                   Log.i("devices", device.devId)
+                  
                   result.success(device.devId)
                 }
               }
@@ -263,6 +265,24 @@ class MainActivity : FlutterActivity() {
                               currentDeviceId = device.devId
                               Log.i("devices", "DEV ID")
                               Log.i("devices", device.devId)
+
+                              val devicesList = listOf(device.devId)
+
+                              Log.i("devices", "bindNewConfigDevs")
+                              ThingHomeSdk.newHomeInstance(homeId.toLong())
+                                  .bindNewConfigDevs(
+                                      devicesList,
+                                      object : IResultCallback {
+                                        override fun onError(code: String?, error: String?) {
+                                          Log.i("devices", error.toString())
+                                        }
+
+                                        override fun onSuccess() {
+                                          Log.i("devices", "success bindNewConfigDevs");
+                                        }
+                                      }
+                                  )
+
                               result.success(device.devId)
                             }
                           }
@@ -587,35 +607,50 @@ class MainActivity : FlutterActivity() {
         )
       }
       if (call.method == "get_home_devices") {
-//        val homeIdLong = homeId?.toLong()
-//        Log.i("devices", "homeIdLong.toString()")
-//        Log.i("devices", homeIdLong.toString())
-//        if (homeIdLong != null) {
-//          val homeDeviceList = ThingHomeSdk.getDataInstance().getHomeDeviceList(homeIdLong)
-//          Log.i("devices", "homeDeviceList")
-//          Log.i("devices", homeDeviceList.toString())
-//        }
-
-//        val dataInstance = ThingHomeSdk.newDeviceInstance("ebe9146b764bf71ab8fif5")
-//          .
-//        Log.i("devices", "data instance")
-//        Log.i("devices", dataInstance.first().toString())
-
-//        ThingHomeSdk.newDeviceInstance("ebe9146b764bf71ab8fif5")
-//          .getDeviceProperty(
-//          object : IPropertyCallback<Map<Any?, Any?>> {
-//            override fun onError(code: String?, error: String?) {
-//              Log.i("devices", "error new deviceInstance")
-//              Log.i("devices", error.toString())
-//            }
-//
-//            override fun onSuccess(result: Map<Any?, Any?>?) {
-//              Log.i("devices", "new device instance")
-//              Log.i("devices", result..toString())
-//            }
-//          }
-//        )
+        val homeIdLong = homeId?.toLong()
+        Log.i("devices", "homeIdLong.toString()")
+        Log.i("devices", homeIdLong.toString())
+        if (homeIdLong != null) {
+          val homeDeviceList = ThingHomeSdk.newHomeInstance(homeIdLong).homeBean
+          Log.i("devices", "homeDeviceList")
+          Log.i("devices", homeDeviceList.toString())
+        }
       }
+
+      if (call.method == "get_user_info") {
+        val homeId = homeId?.toLong()
+
+        if (homeId != null) {
+          Log.i("devices", "get_user_info")
+
+          ThingHomeSdk.newHomeInstance(homeId)
+              .let { home ->
+                Log.i("devices", home.homeBean.toString())
+                
+                home.getHomeDetail(object: IThingHomeResultCallback {
+                  override fun onSuccess(bean: HomeBean?) {
+                    Log.i("devices", bean.toString())
+                  }
+
+                  override fun onError(errorCode: String?, errorMsg: String?) {
+                    Log.i("devices", errorMsg.toString())
+                  }
+                })
+
+                home.getHomeLocalCache(object: IThingHomeResultCallback {
+                  override fun onSuccess(bean: HomeBean?) {
+                    Log.i("devices", bean.toString())
+                  }
+
+                  override fun onError(errorCode: String?, errorMsg: String?) {
+                    Log.i("devices", errorMsg.toString())
+                  }
+                })
+              }
+        }
+        
+      }
+
     }
   }
 

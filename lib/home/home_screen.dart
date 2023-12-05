@@ -32,10 +32,6 @@ class _HomeScreenState extends State<HomeScreen> {
   String? uid;
   String? homeBean;
   List sampleItemValue = [
-    // {
-    //   "title": Strings.newDevice,
-    //   "icon": Icons.add,
-    // },
     {
       "title": Strings.logout,
       "icon": Icons.logout_rounded,
@@ -46,7 +42,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-
     _initializeUID();
     getPermissions();
     // _getHomeList();
@@ -60,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
 
+    getUserInfo();
 
     super.initState();
   }
@@ -184,9 +180,8 @@ class _HomeScreenState extends State<HomeScreen> {
     String? deviceId = prefs.getString("device_paired");
 
     if (deviceId != null) {
-      dynamic device = channel.invokeMethod(Methods.GET_DEVICES_PAIRED, <String, String>{
-        "get_device_id": deviceId
-      });
+      dynamic device = channel.invokeMethod(Methods.GET_DEVICES_PAIRED,
+          <String, String>{"get_device_id": deviceId});
 
       print("devices paired");
       print(device);
@@ -202,8 +197,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> createHome() async {
     final SharedPreferences prefs = await _prefs;
 
-    String homeId = await channel.invokeMethod(Methods.CREATE_HOME,
-        <String, String>{"home_name": "Home"});
+    String homeId = await channel.invokeMethod(
+        Methods.CREATE_HOME, <String, String>{"home_name": "Home"});
 
     prefs.setString("home_id", homeId);
   }
@@ -267,7 +262,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getHomeData() async {
-    String? homeIdResult = await channel.invokeMethod("get_home_data", <String, String>{});
+    String? homeIdResult =
+        await channel.invokeMethod("get_home_data", <String, String>{});
     if (homeIdResult!.isNotEmpty) {
       SharedPreferences prefs = await _prefs;
       prefs.setString("home_id", homeIdResult);
@@ -275,9 +271,25 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getHomeDeviceList() async {
-    String? deviceList = await channel.invokeMethod("get_home_devices", <String, String>{});
-    print("deviceList");
-    print(deviceList);
+    SharedPreferences prefs = await _prefs;
+    String? homeId = prefs.getString("home_id");
+    if (homeId != null && homeId.isNotEmpty) {
+      String? deviceList =
+      await channel.invokeMethod("get_home_devices", <String, String>{
+        "home_id": homeId.toString()
+      });
+      print("deviceList");
+      print(deviceList);
+    }
   }
 
+  getUserInfo() async {
+    SharedPreferences prefs = await _prefs;
+    String? homeId = prefs.getString("home_id");
+    if (homeId != null && homeId.isNotEmpty) {
+      await channel.invokeMethod("get_user_info", <String, String>{
+        "home_id": homeId.toString()
+      });
+    }
+  }
 }

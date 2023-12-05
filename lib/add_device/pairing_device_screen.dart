@@ -143,6 +143,10 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
 
       print("res");
       print(deviceID);
+
+      if (deviceID != null) {
+        navigateToHome();
+      }
   }
 
   Future<void> stopPairDevice() async {
