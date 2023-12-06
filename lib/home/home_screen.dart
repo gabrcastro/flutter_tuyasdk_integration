@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   dynamic devResp;
   SampleItem? selectedMenu;
   List devices = [];
-  late List<Device> listOfDevices;
+  List<Device> listOfDevices = [];
   String? uid;
   String? homeBean;
   List sampleItemValue = [
@@ -49,10 +49,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     _initializeUID();
     getPermissions();
-    // _getHomeList();
     getSharedPreferences();
 
-    getUserInfo();
+    _initUserInfo();
 
     super.initState();
   }
@@ -136,41 +135,105 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: SafeArea(
         child: Container(
-          padding: const EdgeInsets.all(20),
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            color: Colors.black87,
-          ),
-          child: Column(
-            children: [
-              Visibility(
-                visible: listOfDevices.isEmpty,
-                child: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Center(
-                      child: Text(
-                        Strings.anyDevice,
-                        style: TextStyle(fontSize: 16.0, color: Colors.grey),
-                        textAlign: TextAlign.center,
+            padding: const EdgeInsets.all(20),
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: Colors.black87,
+            ),
+            child: Column(
+              children: [
+                if (listOfDevices.isEmpty)
+                  const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: Text(
+                          Strings.anyDevice,
+                          style: TextStyle(fontSize: 16.0, color: Colors.grey),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
+                    ],
+                  )
+                else
+                  Expanded(
+                    // width: MediaQuery.of(context).size.width,
+                    // height: MediaQuery.of(context).size.height,
+                    child: GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2, // number of items in each row
+                        mainAxisSpacing: 2.0, // spacing between rows
+                        crossAxisSpacing: 2.0, // spacing between columns
+                      ),
+                      padding: const EdgeInsets.all(2.0),
+                      // padding around the grid
+                      itemCount: listOfDevices.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20.0),
+                            color: AppColors.grayBlack,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 70,
+                                height: 70,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image:
+                                        NetworkImage(listOfDevices[0].iconUrl),
+                                  ),
+                                  borderRadius: BorderRadius.circular(50.0),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                listOfDevices[0].name,
+                                style: const TextStyle(
+                                  color: AppColors.white,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    TextButton(
+                                      onPressed: () async {
+                                        await handleStatusLightOn();
+                                      },
+                                      child: const Text("ON"),
+                                    ),
+                                    TextButton(
+                                      onPressed: () async {
+                                        await handleStatusLightOff();
+                                      },
+                                      child: const Text("OFF"),
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        );
+                      },
                     ),
-                  ],
-                ),
-              ),
-              Visibility(
-                visible: listOfDevices.isNotEmpty,
-                child: Column(
-                  children: [
-                    Image.network(listOfDevices[0].iconUrl),
-                    Text(listOfDevices[0].name, style: AppTheme.appBarTitle),
-                  ],
-                ),
-              ),
-            ],
-          )
-        ),
+                  )
+              ],
+            )),
       ),
     );
   }
@@ -281,7 +344,7 @@ class _HomeScreenState extends State<HomeScreen> {
   //   }
   // }
 
-  Future<void> getUserInfo() async {
+  Future<List<Device>> getUserInfo() async {
     SharedPreferences prefs = await _prefs;
     String? info = await channel.invokeMethod("get_user_info",
         <String, String>{"home_id": prefs.getString("home_id")!});
@@ -290,19 +353,67 @@ class _HomeScreenState extends State<HomeScreen> {
     print(info);
 
     if (info != null && info.isNotEmpty) {
-
       String infoElements = info.substring(1, info.length - 1);
       List<String> elements = infoElements.split(', ');
 
+      if (elements.isNotEmpty) {
+        return [
+          Device(
+            id: elements[1],
+            name: elements[0],
+            iconUrl: elements[2],
+          )
+        ];
+      } else {
+        return [];
+      }
+    } else {
+      return [];
+    }
+  }
 
-      setState(() {
-        listOfDevices.add(
-            Device(
-                id: elements[1],
-                name: elements[0],
-                iconUrl: elements[2]
-            )
-        );
+  Future<void> _initUserInfo() async {
+    List<Device> userInfo = await getUserInfo();
+    setState(() {
+      listOfDevices = userInfo;
+    });
+
+    getDevicePairedInfo();
+    getDevicePairedData();
+  }
+
+  Future<void> getDevicePairedInfo() async {
+    // SharedPreferences prefs = await _prefs;
+    // String? pairedDeviceId = prefs.getString("device_id");
+    if (listOfDevices.isNotEmpty) {
+      await channel.invokeMethod("get_device_info",
+          <String, String>{"paired_device_id": listOfDevices[0].id});
+    }
+  }
+
+  Future<void> getDevicePairedData() async {
+    // SharedPreferences prefs = await _prefs;
+    // String? pairedDeviceId = prefs.getString("device_id");
+    if (listOfDevices.isNotEmpty) {
+      await channel.invokeMethod("get_device_data",
+          <String, String>{"paired_device_id": listOfDevices[0].id});
+    }
+  }
+
+  Future<void> handleStatusLightOn() async {
+    if (listOfDevices.isNotEmpty) {
+      await channel.invokeMethod("control_light", <String, String>{
+        "dps": "{\"20\": true}",
+        "paired_device_id": listOfDevices[0].id
+      });
+    }
+  }
+
+  Future<void> handleStatusLightOff() async {
+    if (listOfDevices.isNotEmpty) {
+      await channel.invokeMethod("control_light", <String, String>{
+        "dps": "{\"20\": false}",
+        "paired_device_id": listOfDevices[0].id
       });
     }
   }

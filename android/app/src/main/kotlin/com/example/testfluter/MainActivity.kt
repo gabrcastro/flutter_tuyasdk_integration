@@ -87,6 +87,8 @@ class MainActivity : FlutterActivity() {
       val homeName = argument["home_name"]
       val homeId: String? = argument["home_id"]
       val getDeviceId: String? = argument["get_device_id"]
+      val pairedDeviceId = argument["paired_device_id"]
+      val dpDeviceControl = argument["dps"]
 
       fun configComboDevicePairing() {
         val multiModeActivatorBean: MultiModeActivatorBean =
@@ -665,6 +667,66 @@ class MainActivity : FlutterActivity() {
 //          }
         }
 
+      }
+
+      if (call.method == "get_device_info") {
+        Log.i("devices", "get_device_info")
+        Log.i("devices", pairedDeviceId.toString())
+        if (pairedDeviceId != null) {
+          val device = ThingHomeSdk.newDeviceInstance(pairedDeviceId)
+
+          Log.i("devices", "getDeviceProperty")
+          val dataInstance = ThingHomeSdk.getDataInstance()
+          Log.i("devices", "dps_device")
+          Log.i("devices", dataInstance.getDps(pairedDeviceId).toString())
+          Log.i("devices", dataInstance.getDeviceBean(pairedDeviceId)?.connectionStatus.toString())
+
+          device.publishDps("{\"20\": false}",
+            object: IResultCallback {
+              override fun onError(code: String?, error: String?) {
+                Log.i("devices", "error publishDps")
+                Log.i("devices", error.toString())
+              }
+
+              override fun onSuccess() {
+                Log.i("devices", "success publishDps")
+              }
+            }
+          )
+
+        }
+      }
+
+      if (call.method == "get_device_data") {
+        Log.i("devices", "get_device_data")
+        Log.i("devices", pairedDeviceId.toString())
+        if (pairedDeviceId != null) {
+
+          val dataInstance = ThingHomeSdk.getDataInstance()
+          Log.i("devices", "dps_device")
+          Log.i("devices", dataInstance.getDps(pairedDeviceId).toString())
+          Log.i("devices", dataInstance.getDeviceBean(pairedDeviceId)?.connectionStatus.toString())
+        }
+      }
+
+      if (call.method == "control_light") {
+
+        if (pairedDeviceId != null && dpDeviceControl != null) {
+            val device = ThingHomeSdk.newDeviceInstance(pairedDeviceId)
+
+            device.publishDps(dpDeviceControl,
+              object: IResultCallback {
+                override fun onError(code: String?, error: String?) {
+                  Log.i("devices", "error publishDps")
+                  Log.i("devices", error.toString())
+                }
+
+                override fun onSuccess() {
+                  Log.i("devices", "success publishDps")
+                }
+              }
+            )
+        }
       }
 
     }

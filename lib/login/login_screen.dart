@@ -179,24 +179,21 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   _loginTuya() async {
+
     dynamic uid =
         await channel.invokeMethod(Methods.AUTHENTICATE, <String, String>{
       "country_code": "55",
       "email": "gabriel.castro@houseasy.net", //_emailController.text,
       "password": "12345678" //_passwController.text
     });
+
     if (uid == null) {
+      // TODO something
     } else {
       final SharedPreferences prefs = await _prefs;
-      // get userID
       prefs.setString("user_uid", uid);
 
-      // get homeID
-      String homeIdResult = await getHomeData();
-      prefs.setString("home_id", homeIdResult);
-
-      // go to home screen
-      _navigateToHomeScreen();
+      await getHomeData(prefs);
     }
   }
 
@@ -225,13 +222,16 @@ class _LoginScreenState extends State<LoginScreen> {
     return homeIdValue != null && homeIdValue.isNotEmpty;
   }
 
-  getHomeData() async {
+  Future<void> getHomeData(SharedPreferences prefsInstance) async {
     String? homeIdResult =
     await channel.invokeMethod("get_home_data", <String, String>{});
     if (homeIdResult!.isNotEmpty) {
-      return homeIdResult;
-    }
+      prefsInstance.setString("home_id", homeIdResult.toString());
 
-    return "";
+      // go to home screen
+      _navigateToHomeScreen();
+    } else {
+      // TODO something
+    }
   }
 }
