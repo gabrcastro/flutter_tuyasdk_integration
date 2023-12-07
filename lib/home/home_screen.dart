@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testfluter/DeviceModel.dart';
 import 'package:testfluter/add_device/components/add_device.dart';
+import 'package:testfluter/control/controle.dart';
 import 'package:testfluter/home/Device.dart';
 import 'package:testfluter/home/components/logout_widget.dart';
 import 'package:testfluter/res/colors.dart';
@@ -171,62 +172,72 @@ class _HomeScreenState extends State<HomeScreen> {
                       // padding around the grid
                       itemCount: listOfDevices.length,
                       itemBuilder: (context, index) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20.0),
-                            color: AppColors.grayBlack,
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 70,
-                                height: 70,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image:
-                                        NetworkImage(listOfDevices[0].iconUrl),
-                                  ),
-                                  borderRadius: BorderRadius.circular(50.0),
-                                ),
+                        return InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => ControlScreen(
+                                    deviceName: listOfDevices[0].name),
                               ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Text(
-                                listOfDevices[0].name,
-                                style: const TextStyle(
-                                  color: AppColors.white,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              SizedBox(
-                                width: MediaQuery.of(context).size.width,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    TextButton(
-                                      onPressed: () async {
-                                        await handleStatusLightOn();
-                                      },
-                                      child: const Text("ON"),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20.0),
+                              color: AppColors.grayBlack,
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 70,
+                                  height: 70,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: NetworkImage(
+                                          listOfDevices[0].iconUrl),
                                     ),
-                                    TextButton(
-                                      onPressed: () async {
-                                        await handleStatusLightOff();
-                                      },
-                                      child: const Text("OFF"),
-                                    )
-                                  ],
+                                    borderRadius: BorderRadius.circular(50.0),
+                                  ),
                                 ),
-                              )
-                            ],
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Text(
+                                  listOfDevices[0].name,
+                                  style: const TextStyle(
+                                    color: AppColors.white,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      TextButton(
+                                        onPressed: () async {
+                                          await handleStatusLightOn();
+                                        },
+                                        child: const Text("ON"),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          await handleStatusLightOff();
+                                        },
+                                        child: const Text("OFF"),
+                                      )
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
                         );
                       },
