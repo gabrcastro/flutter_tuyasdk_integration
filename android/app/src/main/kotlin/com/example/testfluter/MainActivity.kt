@@ -673,26 +673,12 @@ class MainActivity : FlutterActivity() {
         Log.i("devices", "get_device_info")
         Log.i("devices", pairedDeviceId.toString())
         if (pairedDeviceId != null) {
-          val device = ThingHomeSdk.newDeviceInstance(pairedDeviceId)
 
           Log.i("devices", "getDeviceProperty")
           val dataInstance = ThingHomeSdk.getDataInstance()
           Log.i("devices", "dps_device")
           Log.i("devices", dataInstance.getDps(pairedDeviceId).toString())
           Log.i("devices", dataInstance.getDeviceBean(pairedDeviceId)?.connectionStatus.toString())
-
-          device.publishDps("{\"20\": false}",
-            object: IResultCallback {
-              override fun onError(code: String?, error: String?) {
-                Log.i("devices", "error publishDps")
-                Log.i("devices", error.toString())
-              }
-
-              override fun onSuccess() {
-                Log.i("devices", "success publishDps")
-              }
-            }
-          )
 
         }
       }
@@ -705,7 +691,8 @@ class MainActivity : FlutterActivity() {
           val dataInstance = ThingHomeSdk.getDataInstance()
           Log.i("devices", "dps_device")
           Log.i("devices", dataInstance.getDps(pairedDeviceId).toString())
-          Log.i("devices", dataInstance.getDeviceBean(pairedDeviceId)?.connectionStatus.toString())
+
+          result.success(dataInstance.getDps(pairedDeviceId).toString())
         }
       }
 
@@ -728,7 +715,6 @@ class MainActivity : FlutterActivity() {
             )
         }
       }
-
     }
   }
 

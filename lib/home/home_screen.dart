@@ -6,8 +6,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testfluter/DeviceModel.dart';
 import 'package:testfluter/add_device/components/add_device.dart';
 import 'package:testfluter/control/controle.dart';
+import 'package:testfluter/control/lamp_module/lamp_viewmodel.dart';
 import 'package:testfluter/home/Device.dart';
 import 'package:testfluter/home/components/logout_widget.dart';
+import 'package:testfluter/home/custom_grid_delegate.dart';
 import 'package:testfluter/res/colors.dart';
 import 'package:testfluter/res/strings.dart';
 import 'package:testfluter/res/themes.dart';
@@ -56,6 +58,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     super.initState();
   }
+
+  LampViewModel lampViewModel = LampViewModel();
+  bool lampStatus = false;
+  String dpsDevice = "";
 
   @override
   Widget build(BuildContext context) {
@@ -163,13 +169,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     // height: MediaQuery.of(context).size.height,
                     child: GridView.builder(
                       gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2, // number of items in each row
-                        mainAxisSpacing: 2.0, // spacing between rows
-                        crossAxisSpacing: 2.0, // spacing between columns
+                          const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 200,
+                        mainAxisExtent: 200,
+                        childAspectRatio: 3 / 2,
+                        crossAxisSpacing: 20,
+                        mainAxisSpacing: 20,
                       ),
-                      padding: const EdgeInsets.all(2.0),
-                      // padding around the grid
+
                       itemCount: listOfDevices.length,
                       itemBuilder: (context, index) {
                         return InkWell(
@@ -177,7 +184,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => ControlScreen(
-                                    deviceName: listOfDevices[0].name),
+                                  channel: channel,
+                                  deviceId: listOfDevices[0].id,
+                                  deviceName: listOfDevices[0].name,
+                                ),
                               ),
                             );
                           },
@@ -195,8 +205,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Container(
-                                  width: 70,
-                                  height: 70,
+                                  width: 50,
+                                  height: 50,
                                   decoration: BoxDecoration(
                                     image: DecorationImage(
                                       image: NetworkImage(
@@ -215,25 +225,51 @@ class _HomeScreenState extends State<HomeScreen> {
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                SizedBox(
+                                Container(
+                                  margin: const EdgeInsets.only(top: 10.0),
                                   width: MediaQuery.of(context).size.width,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      TextButton(
-                                        onPressed: () async {
-                                          await handleStatusLightOn();
-                                        },
-                                        child: const Text("ON"),
-                                      ),
-                                      TextButton(
-                                        onPressed: () async {
-                                          await handleStatusLightOff();
-                                        },
-                                        child: const Text("OFF"),
-                                      )
-                                    ],
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      !lampStatus
+                                          ? lampViewModel.handleStatusLightOn(
+                                              channel,
+                                              listOfDevices[0].id,
+                                            )
+                                          : lampViewModel.handleStatusLightOff(
+                                              channel,
+                                              listOfDevices[0].id,
+                                            );
+
+                                      setState(() {
+                                        lampStatus = !lampStatus;
+                                      });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.grayBlack,
+                                      elevation: 0,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.power_settings_new_rounded,
+                                          color: lampStatus
+                                              ? AppColors.blueLight
+                                              : AppColors.white,
+                                        ),
+                                        const SizedBox(
+                                          width: 10.0,
+                                        ),
+                                        Text(
+                                          lampStatus ? "ON" : "OFF",
+                                          style: const TextStyle(
+                                            color: AppColors.gray,
+                                            fontSize: 12.0,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 )
                               ],
@@ -397,8 +433,17 @@ class _HomeScreenState extends State<HomeScreen> {
     // SharedPreferences prefs = await _prefs;
     // String? pairedDeviceId = prefs.getString("device_id");
     if (listOfDevices.isNotEmpty) {
-      await channel.invokeMethod("get_device_info",
+      String? dps = await channel.invokeMethod("get_device_info",
           <String, String>{"paired_device_id": listOfDevices[0].id});
+
+      print("changeDeviceStatus");
+      if (dps != null) {
+        setState(() {
+          dpsDevice = dps;
+        });
+        print(dps);
+        changeDeviceStatus(dps);
+      }
     }
   }
 
@@ -406,26 +451,68 @@ class _HomeScreenState extends State<HomeScreen> {
     // SharedPreferences prefs = await _prefs;
     // String? pairedDeviceId = prefs.getString("device_id");
     if (listOfDevices.isNotEmpty) {
-      await channel.invokeMethod("get_device_data",
+      String? dps = await channel.invokeMethod("get_device_data",
           <String, String>{"paired_device_id": listOfDevices[0].id});
+
+      print("changeDeviceStatus");
+      if (dps != null) {
+        setState(() {
+          dpsDevice = dps;
+        });
+        print(dps);
+        changeDeviceStatus(dps);
+      }
     }
+  }
+  dynamic _parseValue(String value) {
+    if (value == 'true' || value == 'false') {
+      return value == 'true';
+    } else if (RegExp(r'^\d+$').hasMatch(value)) {
+      return int.parse(value);
+    } else if (RegExp(r'^\d*\.\d+$').hasMatch(value)) {
+      return double.parse(value);
+    } else {
+      return value;
+    }
+  }
+  Map<String, dynamic> getDps(String dps) {
+    List<String> keyValuePairs = dps.replaceAll('{', '').replaceAll('}', '').split(',');
+    Map<String, dynamic> dataMap = {};
+    for (String pair in keyValuePairs) {
+      List<String> parts = pair.split('=');
+      String key = parts[0].trim();
+      String value = parts[1].trim();
+      dataMap[key] = _parseValue(value);
+    }
+
+    return dataMap;
   }
 
-  Future<void> handleStatusLightOn() async {
-    if (listOfDevices.isNotEmpty) {
-      await channel.invokeMethod("control_light", <String, String>{
-        "dps": "{\"20\": true}",
-        "paired_device_id": listOfDevices[0].id
-      });
-    }
+  changeDeviceStatus(String dps) {
+    print("changeDeviceStatus");
+    print(dps);
+    print(getDps(dps)["20"]);
+    bool statusLamp = getDps(dps)["20"];
+    setState(() {
+      lampStatus = statusLamp;
+    });
   }
 
-  Future<void> handleStatusLightOff() async {
-    if (listOfDevices.isNotEmpty) {
-      await channel.invokeMethod("control_light", <String, String>{
-        "dps": "{\"20\": false}",
-        "paired_device_id": listOfDevices[0].id
-      });
-    }
-  }
+// Future<void> handleStatusLightOn() async {
+//   if (listOfDevices.isNotEmpty) {
+//     await channel.invokeMethod("control_light", <String, String>{
+//       "dps": "{\"20\": true}",
+//       "paired_device_id": listOfDevices[0].id
+//     });
+//   }
+// }
+//
+// Future<void> handleStatusLightOff() async {
+//   if (listOfDevices.isNotEmpty) {
+//     await channel.invokeMethod("control_light", <String, String>{
+//       "dps": "{\"20\": false}",
+//       "paired_device_id": listOfDevices[0].id
+//     });
+//   }
+// }
 }
