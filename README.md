@@ -4,25 +4,37 @@
 >[!IMPORTANT]
 > Toda a documentação do Tuya SDK como configuração do projeto está nos links abaixo.
 
-<a href="#links">Links &#128279;</a><br/>
-<a href="#integration">Integração &#128279;</a><br/>
-<a href="#user_register">Registro de usuário &#128279;</a><br/>
+<br><br>
+- <a href="#links">Links</a> <br/>
 
-<h2 id="links">Links</h2>
+- <a href="#integration">Integração</a> <br/>
+ 
+- <a href="#user_register">Registro de usuário</a> <br/>
+
+- <a href="#user_auth">Autenticação de usuário</a> <br/>
+	- <a href="#login">Login</a><br>
+	- <a href="#logged">Manter conectado</a><br>
+	- <a href="#logout">Logout</a><br>
+ 
+ 
+- <a href="#search_blue_devices">Buscar dispositivos por bluetooth<a> <br />
+<br><br>
+
+<details><summary><h2 id="links">Links</h2></summary>
+
 ### Tuya Doc
 
-<a href="https://developer.tuya.com/">Developer Tuya</a>
-<a href="https://developer.tuya.com/en/docs/app-development/featureoverview?id=Ka69nt97vtsfu">Guia de desenvolvimento para Android-IoT App SDK-Tuya</a>
+<a href="https://developer.tuya.com/">Developer Tuya</a> <br>
+<a href="https://developer.tuya.com/en/docs/app-development/featureoverview?id=Ka69nt97vtsfu">Guia de desenvolvimento para Android-IoT App SDK-Tuya</a> <br>
 
 ### Flutter
 
-<a href="https://docs.flutter.dev/platform-integration/platform-channels">Platform Channels</a>
-<a href="https://api.flutter.dev/flutter/services/MethodChannel-class.html">MethodChannel Class</a>
-<a href="https://medium.com/cashify-engineering/event-channel-to-listen-to-broadcast-events-from-android-43a813672896#id_token=eyJhbGciOiJSUzI1NiIsImtpZCI6ImEwNmFmMGI2OGEyMTE5ZDY5MmNhYzRhYmY0MTVmZjM3ODgxMzZmNjUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIyMTYyOTYwMzU4MzQtazFrNnFlMDYwczJ0cDJhMmphbTRsamRjbXMwMHN0dGcuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIyMTYyOTYwMzU4MzQtazFrNnFlMDYwczJ0cDJhMmphbTRsamRjbXMwMHN0dGcuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDg4MTU4NDAzNjg5NzAwOTEzODIiLCJlbWFpbCI6ImdhYnJpZWxjYXN0cm9tYWlsQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYmYiOjE2OTg0MTc1NDUsIm5hbWUiOiJHYWJyaWVsIFNvdXphIENhc3RybyIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NJUTlZbHJHRlk2NUhCOHFGYnhZYXBYdkVkNEFhY3I0aGdaRzNRd1Zka0NQRmM9czk2LWMiLCJnaXZlbl9uYW1lIjoiR2FicmllbCIsImZhbWlseV9uYW1lIjoiU291emEgQ2FzdHJvIiwibG9jYWxlIjoicHQtQlIiLCJpYXQiOjE2OTg0MTc4NDUsImV4cCI6MTY5ODQyMTQ0NSwianRpIjoiNWFmOTExNDMyZTQ3NGJlYmZiYjg3MDVmYTUyZjcxYTE0ZTdjMjU0OCJ9.GicWaeYsNVhPEnubR2xYIKC_RuKXYSBgNx5ThHttNCDBnPoeCKfxegbqZzWBwuKfO9MA7hY33_cHnyYYszB_hoyMO0d9OpH5HE-ffW3t3jdjuH3vh4Cp6MchOCN9mjaWdxNZc4yBakcbd2ICTbaZOCDkibDPi4pNqlZRA7FCbitnpJXOoV-O9r62vdbuGNvi34RMpqSugakeciSjt0K0j8qTr7Q61SienJf4ynCQgWNhnAM1Cf9JwSZRBxuDmc3EpuC8Y7BOV1yl0EBYSWxn2ijBX-19UvkcZ6Q_HtkpgD9dhQF1oIVN3IY9a439FgitE7hK_yigg59YqxATVFfJzw">Event channel to listen Broadcast receiver’s event</a>
+<a href="https://docs.flutter.dev/platform-integration/platform-channels">Platform Channels</a> <br>
+<a href="https://api.flutter.dev/flutter/services/MethodChannel-class.html">MethodChannel Class</a> <br>
+<a href="https://medium.com/cashify-engineering/event-channel-to-listen-to-broadcast-events-from-android-43a813672896#id_token=eyJhbGciOiJSUzI1NiIsImtpZCI6ImEwNmFmMGI2OGEyMTE5ZDY5MmNhYzRhYmY0MTVmZjM3ODgxMzZmNjUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIyMTYyOTYwMzU4MzQtazFrNnFlMDYwczJ0cDJhMmphbTRsamRjbXMwMHN0dGcuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIyMTYyOTYwMzU4MzQtazFrNnFlMDYwczJ0cDJhMmphbTRsamRjbXMwMHN0dGcuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDg4MTU4NDAzNjg5NzAwOTEzODIiLCJlbWFpbCI6ImdhYnJpZWxjYXN0cm9tYWlsQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYmYiOjE2OTg0MTc1NDUsIm5hbWUiOiJHYWJyaWVsIFNvdXphIENhc3RybyIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NJUTlZbHJHRlk2NUhCOHFGYnhZYXBYdkVkNEFhY3I0aGdaRzNRd1Zka0NQRmM9czk2LWMiLCJnaXZlbl9uYW1lIjoiR2FicmllbCIsImZhbWlseV9uYW1lIjoiU291emEgQ2FzdHJvIiwibG9jYWxlIjoicHQtQlIiLCJpYXQiOjE2OTg0MTc4NDUsImV4cCI6MTY5ODQyMTQ0NSwianRpIjoiNWFmOTExNDMyZTQ3NGJlYmZiYjg3MDVmYTUyZjcxYTE0ZTdjMjU0OCJ9.GicWaeYsNVhPEnubR2xYIKC_RuKXYSBgNx5ThHttNCDBnPoeCKfxegbqZzWBwuKfO9MA7hY33_cHnyYYszB_hoyMO0d9OpH5HE-ffW3t3jdjuH3vh4Cp6MchOCN9mjaWdxNZc4yBakcbd2ICTbaZOCDkibDPi4pNqlZRA7FCbitnpJXOoV-O9r62vdbuGNvi34RMpqSugakeciSjt0K0j8qTr7Q61SienJf4ynCQgWNhnAM1Cf9JwSZRBxuDmc3EpuC8Y7BOV1yl0EBYSWxn2ijBX-19UvkcZ6Q_HtkpgD9dhQF1oIVN3IY9a439FgitE7hK_yigg59YqxATVFfJzw">Event channel to listen Broadcast receiver’s event</a> <br>
+</details>
 
-<br><br>
-
-<h2 id="integration">Integração</h2>
+<details><summary><h2 id="integration">Integração</h2></summary>
 
 >[!IMPORTANT]
 > **Lembre da Configuração do TuyaSDK**
@@ -147,10 +159,9 @@ val code = argument["code"]
 ```
 
 Dessa forma, agora consigo pegar o valor passado na função Flutter e passar ele dentro de alguma função no Kotlin.
+</details>
 
-<br><br>
-
-<h2 id="user_register">Registro de usuário</h2>
+<details><summary><h2 id="user_register">Registro de usuário</h2></summary>
 
 Para realizar o registro de um usuário, é importante seguir alguns passos.
 
@@ -260,9 +271,217 @@ if (call.method == REGISTER) {
         )
     }
 ```
+</details>
+
+<details><summary><h2 id="user_auth">Autenticação de usuário</h2></summary>
+
+>[!Important]
+> As constantes apresentadas você pode cria-las no seu código. Como já foi apresentado, não vou criá-las novamente.
+
+<h3 id="login">Login</h3>
+
+Para realizar o login, os argumentos passados são:
+
+ - E-mail
+ - Senha
+ - Código do país
+
+Assim como nos demais, deve-se criar as constantes no Flutter e Kotlin.
+Não vou ficar recriando o código no Flutter, pois segue o mesmo padrão.
+
+A função no Kotlin será algo assim:
+
+``` Kotlin 
+if (call.method == AUTHENTICATE) {
+    ThingHomeSdk.getUserInstance().loginWithEmail(
+        countryCode.toString(),
+        email.toString(),
+        password.toString(),
+        object : ILoginCallback {
+            override fun onSuccess(user: User?) {
+                user?.let {
+                    result.success(it.uid)
+                }
+            }
+
+            override fun onError(code: String?, error: String?) {
+                if (code != null && error != null) {
+                    result.error(code, error, null)
+                };
+            }
+        }
+    )
+}
+```
+
+Neste caso, caso tenha sucesso estou retornando o UID, que é o ID do usuário autenticado.
+E ai é interessante armazenar esse UID no Flutter, talvez cm o SharedPreferences, para mantê-lo logado futuramente.
+
+No Flutter, após receber o UID, poderá navegar para a HOME do app.
+Caso tenha um erro, deve tratá-lo como for melhor.
+
+<h3 id="logged">Manter conectado</h3>
+
+Sempre que abrir o app, será necessário verificar se o usuário já está logado ou não.
+Para isso, podemos chamar a função
+
+``` Kotlin 
+if (call.method == ALREADY_LOGGED) {
+    val isLogged = ThingHomeSdk.getUserInstance().isLogin
+    result.success(isLogged)
+}
+```
+
+Ela vai verificar e retornar um Booleano. No Flutter podemos tratar isso e caso esteja, navegar para dentro do app.
+
+<h3 id="logout">Logout</h3>
+
+A função para realizar logout do usuário é simples, pois o próprio SDK do tuya já nos fornece tudo.
+
+``` Kotlin 
+if (call.method == LOGOUT) {
+    ThingHomeSdk.getUserInstance().logout(object : ILogoutCallback {
+        override fun onSuccess() {
+            Toast.makeText(context, "Logout success", Toast.LENGTH_SHORT).show()
+            result.success(true)
+        }
+
+        override fun onError(p0: String?, p1: String?) {
+            Toast.makeText(context, p1.toString(), Toast.LENGTH_SHORT).show()
+            result.error(p0.toString(), p1.toString(), null)
+        }
+    })
+}
+```
+
+Caso tenha sucesso ou erro, novamente, trate no flutter como necessário.
+
+Lembrando sempre de utilizar o *result.success()* com algum valor importante para ter um retorno sobre a função.
+</details>
+
+<details><summary><h2 id="search_blue_devices">Buscar dispositivos por bluetooth</h2></summary>
+
+### Realizar a varredura
+
+Atualmente estamos buscando os dispositivos para realizar pareamento via bluetooth.
+Para isso, é necessário solicitarmos a permissão do uso de bluetooth no app.
+
+Dentro do *AndroidManifest.xml* adicione as permissões
+
+``` Kotlin
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-permission android:name="android.permission.BLUETOOTH" />
+<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+```
+
+>[!IMPORTANT]
+> Depois será necessário solicitar essas permissões para o usuário.
+> Para fazer isso pode acessar a sessão de **Solicitar permissões ao usuário**.
+
+Após termos adicionado as permissões no manifest, vamos ao código.
+
+Seguindo o mesmo padrão, espero que já tenha criado as constantes necessárias, caso esteja fazendo dessa forma.
+O Código aqui já apresenta essas constantes, então não mostrarei o processo de criação novamente.
+
+Temos então a função que faz a busca por dispositivos
+
+
+
+```Kotlin 
+fun bluetoothScan(callback: (ScanDeviceBean?) -> Unit) {
+    var deviceBean: ScanDeviceBean? = null
+
+    Toast.makeText(context, "Blueetooth Scan", Toast.LENGTH_SHORT).show()
+
+    val scanSetting = LeScanSetting.Builder()
+        .setTimeout(60000)
+        .addScanType(ScanType.SINGLE)
+        .build()
+
+    ThingHomeSdk.getBleOperator().startLeScan(
+        scanSetting
+    ) { bean ->
+        callback(bean)
+    }
+}
+
+if (call.method == SEARCH_DEVICES) {
+    bluetoothScan { deviceBean ->
+        Log.i("scan", "bluetoothScan: ${deviceBean?.name.toString()}")
+        Toast.makeText(context, deviceBean?.data.toString(), Toast.LENGTH_SHORT).show()
+
+        ThingHomeSdk.getActivatorInstance().getActivatorDeviceInfo(
+            deviceBean?.productId,
+            deviceBean?.uuid,
+            deviceBean?.mac,
+            object: IThingDataCallback<ConfigProductInfoBean> {
+                override fun onSuccess(resConfigProductInfoBean: ConfigProductInfoBean?) {
+                    Log.i("scan", "getDeviceInfo: ${resConfigProductInfoBean?.name.toString()}")
+                    Toast.makeText(context, deviceBean?.data.toString(), Toast.LENGTH_SHORT).show()
+
+                    if (resConfigProductInfoBean?.name != null) {
+                        var deviceFound = arrayListOf(
+                            resConfigProductInfoBean.name.toString(),
+                            resConfigProductInfoBean.icon.toString()
+                        )
+                        result.success(deviceFound)
+                    }
+                }
+
+                override fun onError(errorCode: String?, errorMessage: String?) {
+                    Log.i("scan", "error getDeviceInfo: ${errorCode.toString()}")
+                    Toast.makeText(context, errorMessage.toString(), Toast.LENGTH_SHORT).show()
+                }
+            })
+    }
+
+}
+```
+
+1. Observe que foi criado uma função fora do escopo ai da execução.
+Essa função é responsável por configurar o necessário para quando formos fazer a varredura de novos dispositivos.
+Ainda dentro dela, chamamos o startLeScan, passando as configurações necessárias.
+E passamos uma função callback que será executada quando iniciar a varredura.
+2. Essa função de callback é a função passada lá dentro do if abaixo.
+3. Chamamos a função criada que solicita um callback, o nosso callback será executado
+retornando algumas informações caso tenha sucesso ou erro.
+4. É no retorno de sucesso que vamos pegar as informações do dispositivo encontrado e retornar para o Flutter. 
+5. Este *Log.i...* que tem no código é apenas uma forma útil de capturar algumas informações durante a execução.
+Neste caso, foi adicionado para no *LOG* enquanto o app é executado, eu consiga ter um retorno do nome do dispositivo.
+
+Aqui é importante destacar os retornos. De acordo com a documentação do tuya, quando encontra o dispositivo
+será retornado várias informações e uma delas é o *deviceType* que vai nos trazer o tipo do dispositivo encontrado.
+É com esse tipo que vamos chamar a função correta para pareamento.
+
+Temos os seguintes tipos
+
+| 200	| config_type_single	     | Dispositivo Bluetooth                                                                                                       |
+|-------|----------------------------|
+| 300	| config_type_single	     | Dispositivo Bluetooth                                                                                                       |
+| 301	| config_type_wifi	       | Dispositivo combinado Wi-Fi e Bluetooth                                                                                       |                                                                 
+| 304	| config_type_wifi	       | Dispositivo combinado Wi-Fi e Bluetooth que suporta emparelhamento por Bluetooth se uma conexão Wi-Fi não estiver disponível  |
+| 400	| config_type_single	     | Dispositivo Bluetooth                                                                                                       |                                                                                  
+| 401	| config_type_wifi	       | Dispositivo combinado Wi-Fi e Bluetooth                                                                                       |                                                                   
+| 404	| config_type_wifi        | Dispositivo combinado Wi-Fi e Bluetooth que suporta emparelhamento por Bluetooth se uma conexão Wi-Fi não estiver disponível   |
+
+Caso queira encontrar, eis aqui o link: [Varredura de dispositivos](https://developer.tuya.com/en/docs/app-development/android-bluetooth-ble?id=Karv7r2ju4c21#title-1-Device%20scanning)
+
+### Parar busca
+
+Para para a busca por dispositivos, será necessário chamar uma outra função
+
+``` kotlin
+if (call.method == STOP_SEARCH_DEVICES) {
+    ThingHomeSdk.getBleOperator().stopLeScan();
+    result.success(true)
+}
+```
+
+A função vai parar a varredura e retornar um *true* para o Flutter, para que assim seja possível retornar algum feedback para o usuário.
 
 Dessa vez utilizamos os argumentos solicitados juntamente cmo o codigo de registro.
 Novamente, você escolhe como tratar o erro e sucesso, mas recomendo caso tenha sucesso utilizar o 
 *RESULT* para retornar algo para o Flutter e assim poder exibir um feedback para o usuário, ou navegar para a tela 
 de login após registro.
-
+</details>
