@@ -9,12 +9,14 @@ class ControlScreen extends StatefulWidget {
   final String deviceId;
   final String deviceName;
   final MethodChannel channel;
+  final Map<String, dynamic> dps;
 
   const ControlScreen({
     super.key,
     required this.deviceName,
     required this.deviceId,
     required this.channel,
+    required this.dps,
   });
 
   @override
@@ -22,9 +24,20 @@ class ControlScreen extends StatefulWidget {
 }
 
 class _ControlScreenState extends State<ControlScreen> {
-  double _value = 10;
-  bool lampStatus = false;
+  late int brightless;
+  late bool lampStatus;
+
   LampViewModel lampViewModel = LampViewModel();
+
+  int modeValue = 1;
+
+  @override
+  void initState() {
+    lampStatus = widget.dps["20"];
+    brightless = widget.dps["22"];
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +95,9 @@ class _ControlScreenState extends State<ControlScreen> {
                                 ? AppColors.blueLight
                                 : AppColors.white,
                           ),
-                          const SizedBox(width: 10.0,),
+                          const SizedBox(
+                            width: 10.0,
+                          ),
                           Text(
                             lampStatus ? "ON" : "OFF",
                             style: const TextStyle(
@@ -96,7 +111,8 @@ class _ControlScreenState extends State<ControlScreen> {
                     ElevatedButton(
                       onPressed: () {
                         lampViewModel.handleColorLight(
-                            widget.channel, widget.deviceId,
+                          widget.channel,
+                          widget.deviceId,
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -138,16 +154,59 @@ class _ControlScreenState extends State<ControlScreen> {
                 children: Slider(
                   min: 10,
                   max: 1000,
-                  value: _value,
+                  value: brightless.toDouble(),
                   onChanged: (value) {
                     print(value.toInt());
                     setState(() {
-                      _value = value;
+                      brightless = value.toInt();
                     });
-                    lampViewModel.handleBritghtnessLight(widget.channel, widget.deviceId, value.toInt());
+                    lampViewModel.handleBritghtnessLight(
+                        widget.channel, widget.deviceId, value.toInt());
                   },
                   activeColor: AppColors.blueLight,
                   inactiveColor: AppColors.gray,
+                ),
+              ),
+              const SizedBox(
+                height: 20.0,
+              ),
+              CardControl(
+                title: "Mode",
+                children: SegmentedButton(
+                  style: ButtonStyle(
+                    textStyle: MaterialStateProperty.resolveWith<TextStyle>(
+                      (Set<MaterialState> states) => const TextStyle(color: AppColors.white),
+                    ),
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                      (Set<MaterialState> states) {
+                        if (states.contains(MaterialState.selected)) {
+                          return AppColors.blueLight;
+                        }
+                        return AppColors.grayBlack;
+                      },
+                    ),
+                  ),
+                  segments: const <ButtonSegment>[
+                    ButtonSegment(
+                      value: 1,
+                      label: Text('White'),
+                    ),
+                    ButtonSegment(
+                      value: 2,
+                      label: Text('Colour'),
+                    ),
+                  ],
+                  selected: {modeValue},
+                  onSelectionChanged: (Set newSelection) {
+                    setState(() {
+                      modeValue = newSelection.first;
+                    });
+                    if (newSelection.first == 1) {
+                      lampViewModel.handleModeLight(widget.channel, widget.deviceId, "white");
+                    } else if (newSelection.first == 2) {
+                      lampViewModel.handleModeLight(widget.channel, widget.deviceId, "colour");
+                    }
+                  },
                 ),
               ),
             ],

@@ -19,7 +19,14 @@ class LampViewModel {
 
   Future<void> handleColorLight(MethodChannel channel, String deviceId) async {
     await channel.invokeMethod("control_light", <String, String>{
-      "dps": "{\"24\": \"000011112222\" }",
+      "dps": "{\"28\": \"0168 03E8 03E8\" }",
+      "paired_device_id": deviceId
+    });
+  }
+
+  Future<void> handleModeLight(MethodChannel channel, String deviceId, String mode) async {
+    await channel.invokeMethod("control_light", <String, String>{
+      "dps": "{\"21\": \"$mode\" }",
       "paired_device_id": deviceId
     });
   }

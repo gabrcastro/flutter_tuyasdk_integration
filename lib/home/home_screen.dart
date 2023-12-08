@@ -187,6 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   channel: channel,
                                   deviceId: listOfDevices[0].id,
                                   deviceName: listOfDevices[0].name,
+                                  dps: getDps(dpsDevice),
                                 ),
                               ),
                             );
