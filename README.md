@@ -20,7 +20,7 @@
 - <a href="#search_blue_devices">Buscar dispositivos por bluetooth<a> <br />
 <br><br>
 
-<details><summary><h2 id="links">Links</h2></summary>
+<details open><summary><h2 id="links">Links</h2></summary>
 
 ### Tuya Doc
 
@@ -34,7 +34,7 @@
 <a href="https://medium.com/cashify-engineering/event-channel-to-listen-to-broadcast-events-from-android-43a813672896#id_token=eyJhbGciOiJSUzI1NiIsImtpZCI6ImEwNmFmMGI2OGEyMTE5ZDY5MmNhYzRhYmY0MTVmZjM3ODgxMzZmNjUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIyMTYyOTYwMzU4MzQtazFrNnFlMDYwczJ0cDJhMmphbTRsamRjbXMwMHN0dGcuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIyMTYyOTYwMzU4MzQtazFrNnFlMDYwczJ0cDJhMmphbTRsamRjbXMwMHN0dGcuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDg4MTU4NDAzNjg5NzAwOTEzODIiLCJlbWFpbCI6ImdhYnJpZWxjYXN0cm9tYWlsQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYmYiOjE2OTg0MTc1NDUsIm5hbWUiOiJHYWJyaWVsIFNvdXphIENhc3RybyIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NJUTlZbHJHRlk2NUhCOHFGYnhZYXBYdkVkNEFhY3I0aGdaRzNRd1Zka0NQRmM9czk2LWMiLCJnaXZlbl9uYW1lIjoiR2FicmllbCIsImZhbWlseV9uYW1lIjoiU291emEgQ2FzdHJvIiwibG9jYWxlIjoicHQtQlIiLCJpYXQiOjE2OTg0MTc4NDUsImV4cCI6MTY5ODQyMTQ0NSwianRpIjoiNWFmOTExNDMyZTQ3NGJlYmZiYjg3MDVmYTUyZjcxYTE0ZTdjMjU0OCJ9.GicWaeYsNVhPEnubR2xYIKC_RuKXYSBgNx5ThHttNCDBnPoeCKfxegbqZzWBwuKfO9MA7hY33_cHnyYYszB_hoyMO0d9OpH5HE-ffW3t3jdjuH3vh4Cp6MchOCN9mjaWdxNZc4yBakcbd2ICTbaZOCDkibDPi4pNqlZRA7FCbitnpJXOoV-O9r62vdbuGNvi34RMpqSugakeciSjt0K0j8qTr7Q61SienJf4ynCQgWNhnAM1Cf9JwSZRBxuDmc3EpuC8Y7BOV1yl0EBYSWxn2ijBX-19UvkcZ6Q_HtkpgD9dhQF1oIVN3IY9a439FgitE7hK_yigg59YqxATVFfJzw">Event channel to listen Broadcast receiver’s event</a> <br>
 </details>
 
-<details><summary><h2 id="integration">Integração</h2></summary>
+<details open><summary><h2 id="integration">Integração</h2></summary>
 
 >[!IMPORTANT]
 > **Lembre da Configuração do TuyaSDK**
@@ -161,7 +161,7 @@ val code = argument["code"]
 Dessa forma, agora consigo pegar o valor passado na função Flutter e passar ele dentro de alguma função no Kotlin.
 </details>
 
-<details><summary><h2 id="user_register">Registro de usuário</h2></summary>
+<details open><summary><h2 id="user_register">Registro de usuário</h2></summary>
 
 Para realizar o registro de um usuário, é importante seguir alguns passos.
 
@@ -273,7 +273,7 @@ if (call.method == REGISTER) {
 ```
 </details>
 
-<details><summary><h2 id="user_auth">Autenticação de usuário</h2></summary>
+<details open><summary><h2 id="user_auth">Autenticação de usuário</h2></summary>
 
 >[!Important]
 > As constantes apresentadas você pode cria-las no seu código. Como já foi apresentado, não vou criá-las novamente.
@@ -359,7 +359,7 @@ Caso tenha sucesso ou erro, novamente, trate no flutter como necessário.
 Lembrando sempre de utilizar o *result.success()* com algum valor importante para ter um retorno sobre a função.
 </details>
 
-<details><summary><h2 id="search_blue_devices">Buscar dispositivos por bluetooth</h2></summary>
+<details open><summary><h2 id="search_blue_devices">Buscar dispositivos por bluetooth</h2></summary>
 
 ### Realizar a varredura
 
