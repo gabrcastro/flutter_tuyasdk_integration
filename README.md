@@ -1,16 +1,22 @@
-# testfluter
+# Index
 
-A new Flutter project.
+> **Integração do Tuya SDK com o Flutter**
+>
+> Toda a documentação do Tuya SDK como configuração do projeto está nos links abaixo.
+>
+{style="note"}
 
-## Getting Started
+### Tuya Doc
 
-This project is a starting point for a Flutter application.
+<a href="https://developer.tuya.com/">Developer Tuya</a>
 
-A few resources to get you started if this is your first Flutter project:
+<a href="https://developer.tuya.com/en/docs/app-development/featureoverview?id=Ka69nt97vtsfu">Guia de desenvolvimento para Android-IoT App SDK-Tuya</a>
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Flutter
+
+<a href="https://docs.flutter.dev/platform-integration/platform-channels">Platform Channels</a>
+
+<a href="https://api.flutter.dev/flutter/services/MethodChannel-class.html">MethodChannel Class</a>
+
+<a href="https://medium.com/cashify-engineering/event-channel-to-listen-to-broadcast-events-from-android-43a813672896#id_token=eyJhbGciOiJSUzI1NiIsImtpZCI6ImEwNmFmMGI2OGEyMTE5ZDY5MmNhYzRhYmY0MTVmZjM3ODgxMzZmNjUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIyMTYyOTYwMzU4MzQtazFrNnFlMDYwczJ0cDJhMmphbTRsamRjbXMwMHN0dGcuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIyMTYyOTYwMzU4MzQtazFrNnFlMDYwczJ0cDJhMmphbTRsamRjbXMwMHN0dGcuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDg4MTU4NDAzNjg5NzAwOTEzODIiLCJlbWFpbCI6ImdhYnJpZWxjYXN0cm9tYWlsQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYmYiOjE2OTg0MTc1NDUsIm5hbWUiOiJHYWJyaWVsIFNvdXphIENhc3RybyIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NJUTlZbHJHRlk2NUhCOHFGYnhZYXBYdkVkNEFhY3I0aGdaRzNRd1Zka0NQRmM9czk2LWMiLCJnaXZlbl9uYW1lIjoiR2FicmllbCIsImZhbWlseV9uYW1lIjoiU291emEgQ2FzdHJvIiwibG9jYWxlIjoicHQtQlIiLCJpYXQiOjE2OTg0MTc4NDUsImV4cCI6MTY5ODQyMTQ0NSwianRpIjoiNWFmOTExNDMyZTQ3NGJlYmZiYjg3MDVmYTUyZjcxYTE0ZTdjMjU0OCJ9.GicWaeYsNVhPEnubR2xYIKC_RuKXYSBgNx5ThHttNCDBnPoeCKfxegbqZzWBwuKfO9MA7hY33_cHnyYYszB_hoyMO0d9OpH5HE-ffW3t3jdjuH3vh4Cp6MchOCN9mjaWdxNZc4yBakcbd2ICTbaZOCDkibDPi4pNqlZRA7FCbitnpJXOoV-O9r62vdbuGNvi34RMpqSugakeciSjt0K0j8qTr7Q61SienJf4ynCQgWNhnAM1Cf9JwSZRBxuDmc3EpuC8Y7BOV1yl0EBYSWxn2ijBX-19UvkcZ6Q_HtkpgD9dhQF1oIVN3IY9a439FgitE7hK_yigg59YqxATVFfJzw">Event channel to listen Broadcast receiver’s event</a>
