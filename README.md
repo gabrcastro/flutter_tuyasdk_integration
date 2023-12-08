@@ -22,6 +22,9 @@
 
 <details open><summary><h2 id="links">Links</h2></summary>
 
+### Fluxograma
+<a href="https://www.figma.com/file/3WIEOZpezC2qoLUbU4rBBs/Fluxo---Integracao-com-Tuya?type=whiteboard&node-id=0%3A1&t=uvwXLJttxV2DsWq8-1">Fluxograma - Figma</a>
+
 ### Tuya Doc
 
 <a href="https://developer.tuya.com/">Developer Tuya</a> <br>
