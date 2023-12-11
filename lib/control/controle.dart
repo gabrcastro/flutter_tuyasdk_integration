@@ -111,9 +111,7 @@ class _ControlScreenState extends State<ControlScreen> {
                     ElevatedButton(
                       onPressed: () {
                         lampViewModel.handleColorLight(
-                          widget.channel,
-                          widget.deviceId,
-                        );
+                            widget.channel, widget.deviceId, [255, 255, 255]);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.grayBlack,
@@ -175,7 +173,8 @@ class _ControlScreenState extends State<ControlScreen> {
                 children: SegmentedButton(
                   style: ButtonStyle(
                     textStyle: MaterialStateProperty.resolveWith<TextStyle>(
-                      (Set<MaterialState> states) => const TextStyle(color: AppColors.white),
+                      (Set<MaterialState> states) =>
+                          const TextStyle(color: AppColors.white),
                     ),
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                       (Set<MaterialState> states) {
@@ -202,9 +201,11 @@ class _ControlScreenState extends State<ControlScreen> {
                       modeValue = newSelection.first;
                     });
                     if (newSelection.first == 1) {
-                      lampViewModel.handleModeLight(widget.channel, widget.deviceId, "white");
+                      lampViewModel.handleModeLight(
+                          widget.channel, widget.deviceId, "white");
                     } else if (newSelection.first == 2) {
-                      lampViewModel.handleModeLight(widget.channel, widget.deviceId, "colour");
+                      lampViewModel.handleModeLight(
+                          widget.channel, widget.deviceId, "colour");
                     }
                   },
                 ),
