@@ -167,15 +167,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     // width: MediaQuery.of(context).size.width,
                     // height: MediaQuery.of(context).size.height,
-                    child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 200,
-                        mainAxisExtent: 200,
-                        childAspectRatio: 3 / 2,
-                        crossAxisSpacing: 20,
-                        mainAxisSpacing: 20,
-                      ),
+                    child: ListView.builder(
+                      // gridDelegate:
+                      //     const SliverGridDelegateWithMaxCrossAxisExtent(
+                      //   maxCrossAxisExtent: 200,
+                      //   mainAxisExtent: 200,
+                      //   childAspectRatio: 3 / 2,
+                      //   crossAxisSpacing: 20,
+                      //   mainAxisSpacing: 20,
+                      // ),
 
                       itemCount: listOfDevices.length,
                       itemBuilder: (context, index) {
@@ -194,85 +194,116 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 10,
+                              horizontal: 20,
+                              vertical: 20,
                             ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20.0),
                               color: AppColors.grayBlack,
                             ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: NetworkImage(
-                                          listOfDevices[0].iconUrl),
-                                    ),
-                                    borderRadius: BorderRadius.circular(50.0),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Text(
-                                  listOfDevices[0].name,
-                                  style: const TextStyle(
-                                    color: AppColors.white,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.only(top: 10.0),
-                                  width: MediaQuery.of(context).size.width,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      !lampStatus
-                                          ? lampViewModel.handleStatusLightOn(
-                                              channel,
-                                              listOfDevices[0].id,
-                                            )
-                                          : lampViewModel.handleStatusLightOff(
-                                              channel,
-                                              listOfDevices[0].id,
-                                            );
-
-                                      setState(() {
-                                        lampStatus = !lampStatus;
-                                      });
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.grayBlack,
-                                      elevation: 0,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                Row(
+                                  children: [
+                                    Column(
                                       children: [
-                                        Icon(
-                                          Icons.power_settings_new_rounded,
-                                          color: lampStatus
-                                              ? AppColors.blueLight
-                                              : AppColors.white,
+                                        Container(
+                                          width: 50,
+                                          height: 50,
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: NetworkImage(
+                                                  listOfDevices[0].iconUrl),
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(50.0),
+                                          ),
                                         ),
                                         const SizedBox(
-                                          width: 10.0,
+                                          height: 10,
                                         ),
                                         Text(
-                                          lampStatus ? "ON" : "OFF",
+                                          listOfDevices[0].name,
                                           style: const TextStyle(
-                                            color: AppColors.gray,
-                                            fontSize: 12.0,
+                                            color: AppColors.white,
+                                            fontWeight: FontWeight.w500,
                                           ),
                                         ),
                                       ],
                                     ),
+                                    Container(
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 20),
+                                      width: 1,
+                                      height: 90,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          !lampStatus
+                                              ? lampViewModel
+                                                  .handleStatusLightOn(
+                                                  channel,
+                                                  listOfDevices[0].id,
+                                                )
+                                              : lampViewModel
+                                                  .handleStatusLightOff(
+                                                  channel,
+                                                  listOfDevices[0].id,
+                                                );
+
+                                          setState(() {
+                                            lampStatus = !lampStatus;
+                                          });
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.grayBlack,
+                                          elevation: 0,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.power_settings_new_rounded,
+                                              color: lampStatus
+                                                  ? AppColors.blueLight
+                                                  : AppColors.white,
+                                            ),
+                                            const SizedBox(
+                                              width: 10.0,
+                                            ),
+                                            Text(
+                                              lampStatus ? "ON" : "OFF",
+                                              style: const TextStyle(
+                                                color: AppColors.gray,
+                                                fontSize: 12.0,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    lampViewModel.handleDeleteDevice(
+                                      channel,
+                                      listOfDevices[0].id,
+                                    );
+                                  },
+                                  icon: const Icon(
+                                    Icons.delete_outline_rounded,
+                                    color: Colors.redAccent,
                                   ),
-                                )
+                                ),
                               ],
                             ),
                           ),
@@ -465,6 +496,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
   }
+
   dynamic _parseValue(String value) {
     if (value == 'true' || value == 'false') {
       return value == 'true';
@@ -476,8 +508,10 @@ class _HomeScreenState extends State<HomeScreen> {
       return value;
     }
   }
+
   Map<String, dynamic> getDps(String dps) {
-    List<String> keyValuePairs = dps.replaceAll('{', '').replaceAll('}', '').split(',');
+    List<String> keyValuePairs =
+        dps.replaceAll('{', '').replaceAll('}', '').split(',');
     Map<String, dynamic> dataMap = {};
     for (String pair in keyValuePairs) {
       List<String> parts = pair.split('=');

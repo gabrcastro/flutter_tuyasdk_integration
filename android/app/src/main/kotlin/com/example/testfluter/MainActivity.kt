@@ -1,9 +1,12 @@
 package com.example.testfluter
 
+import android.graphics.ColorSpace.Rgb
 import android.util.Log
 import android.widget.Toast
+import androidx.core.graphics.ColorUtils
 import com.example.testfluter.scan.DeviceFound
 import com.example.testfluter.scan.ScanDevice
+import com.thingclips.bouncycastle.jcajce.provider.symmetric.util.PBE.Util
 import com.thingclips.sdk.home.bean.ThingListDataBean
 import com.thingclips.smart.activator.core.kit.ThingActivatorCoreKit
 import com.thingclips.smart.activator.core.kit.bean.ThingActivatorScanKey
@@ -713,6 +716,26 @@ class MainActivity : FlutterActivity() {
                 }
               }
             )
+        }
+      }
+      
+      if (call.method == "delete_device") {
+        if (pairedDeviceId != null && dpDeviceControl != null) {
+          val device = ThingHomeSdk.newDeviceInstance(pairedDeviceId)
+        
+          device.removeDevice(
+            object: IResultCallback {
+              override fun onError(code: String?, error: String?) {
+                Log.i("devices", error.toString())
+                result.success(false)
+              }
+
+              override fun onSuccess() {
+                Log.i("devices", "device removed")
+                result.success(true)
+              }
+            }
+          )
         }
       }
     }

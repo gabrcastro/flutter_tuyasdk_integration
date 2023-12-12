@@ -131,6 +131,9 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
       print(deviceID);
 
       prefs.setString("device_id", deviceID);
+      if (deviceID.isNotEmpty) {
+        navigateToHome();
+      }
     }
   }
 
@@ -143,10 +146,6 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
 
       print("res");
       print(deviceID);
-
-      if (deviceID != null) {
-        navigateToHome();
-      }
   }
 
   Future<void> stopPairDevice() async {

@@ -18,16 +18,37 @@ class LampViewModel {
     });
   }
 
-  Future<void> handleColorLight(
-      MethodChannel channel, String deviceId, List<int> colors) async {
-    var hex = rgbToTuya(colors[0], colors[1], colors[2]);
+  Future<void> handleColorWhiteLight(
+      MethodChannel channel, String deviceId, int value) async {
 
     await channel.invokeMethod("control_light", <String, String>{
-      "dps": "{\"24\": $hex }",
+      "dps": "{\"23\": $value }",
       "paired_device_id": deviceId
     });
   }
 
+  Future<void> handleColorColourLight(
+      MethodChannel channel, String deviceId, List<String> color) async {
+    
+    await channel.invokeMethod("control_light", <String, String>{
+      "dps": "{\"24\": \"${color.join()}\" }",
+      "paired_device_id": deviceId
+    });
+  }
+
+  String convertHSVToHex(int hue, double saturation, double value) {
+    // Conversão de Matiz (Hue) para Hexadecimal
+    String hueHex = (hue / 2).round().toRadixString(16).toUpperCase().padLeft(4, '0');
+
+    // Conversão de Saturação (Saturation) para Hexadecimal
+    String saturationHex = (saturation * 255).round().toRadixString(16).toUpperCase().padLeft(2, '0');
+
+    // Conversão de Valor (Value) para Hexadecimal
+    String valueHex = (value * 255).round().toRadixString(16).toUpperCase().padLeft(2, '0');
+
+    return '$hueHex$saturationHex$valueHex';
+  }
+  
   Future<void> handleModeLight(
       MethodChannel channel, String deviceId, String mode) async {
     await channel.invokeMethod("control_light", <String, String>{
@@ -42,6 +63,19 @@ class LampViewModel {
       "dps": "{\"22\": $value }",
       "paired_device_id": deviceId
     });
+  }
+
+  Future<void> handleDeleteDevice(
+      MethodChannel channel, String deviceId) async {
+    bool result = await channel.invokeMethod("delete_device", <String, String>{
+      "paired_device_id": deviceId
+    });
+
+    if (result) {
+      print("device removed");
+    } else {
+      print("error - device removed");
+    }
   }
 
   List<double> rgbToHsv(double t, double e, double n) {
