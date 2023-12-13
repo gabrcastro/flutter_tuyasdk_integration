@@ -118,14 +118,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.8.0"
-  flutter_hsvcolor_picker:
+  flutter_colorpicker:
     dependency: "direct main"
     description:
-      name: flutter_hsvcolor_picker
-      sha256: ea5868dbb1c840ef502bbf60168b26e18eab13a3a2b07bfef0c59a64e7fedc2c
+      name: flutter_colorpicker
+      sha256: "458a6ed8ea480eb16ff892aedb4b7092b2804affd7e046591fb03127e8d8ef8b"
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.0"
+    version: "1.0.3"
   flutter_lints:
     dependency: "direct dev"
     description:

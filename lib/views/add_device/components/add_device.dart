@@ -3,14 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue/flutter_blue.dart';
-import 'package:testfluter/add_device/components/device_card.dart';
-import 'package:testfluter/add_device/config_network.dart';
+import 'package:testfluter/views/add_device/components/device_card.dart';
+import 'package:testfluter/views/add_device/config_network.dart';
 import 'package:testfluter/res/strings.dart';
 import 'package:testfluter/res/colors.dart';
 import 'package:testfluter/res/themes.dart';
 
-import '../../DeviceModel.dart';
-import '../../utils/enums.dart';
+import '../../../DeviceModel.dart';
+import '../../../utils/enums.dart';
 
 class AddDevice extends StatefulWidget {
   const AddDevice({super.key});

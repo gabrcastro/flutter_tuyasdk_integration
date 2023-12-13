@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:testfluter/home/home_screen.dart';
+import 'package:testfluter/views/home/home_screen.dart';
 import 'package:testfluter/res/colors.dart';
 import 'package:testfluter/res/strings.dart';
 import 'package:testfluter/utils/enums.dart';

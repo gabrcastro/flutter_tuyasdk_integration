@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:testfluter/login/login_screen.dart';
 import 'package:testfluter/res/colors.dart';
+import 'package:testfluter/views/login/login_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

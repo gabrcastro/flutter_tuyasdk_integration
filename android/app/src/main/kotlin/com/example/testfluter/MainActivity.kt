@@ -718,7 +718,7 @@ class MainActivity : FlutterActivity() {
             )
         }
       }
-      
+
       if (call.method == "delete_device") {
         if (pairedDeviceId != null && dpDeviceControl != null) {
           val device = ThingHomeSdk.newDeviceInstance(pairedDeviceId)

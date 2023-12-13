@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:testfluter/login/login_screen.dart';
+import 'package:testfluter/views/login/login_screen.dart';
 import 'package:testfluter/res/colors.dart';
 import 'package:testfluter/utils/enums.dart';
 

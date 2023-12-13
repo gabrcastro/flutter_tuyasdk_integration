@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:testfluter/DeviceModel.dart';
-import 'package:testfluter/add_device/pairing_device_screen.dart';
+import 'package:testfluter/views/add_device/pairing_device_screen.dart';
 import 'package:testfluter/res/strings.dart';
 import 'package:testfluter/res/themes.dart';
 

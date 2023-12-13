@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testfluter/User.dart';
-import 'package:testfluter/home/home_screen.dart';
-import 'package:testfluter/register/register_screen.dart';
 import 'package:testfluter/res/strings.dart';
 import 'package:testfluter/utils/enums.dart';
+import 'package:testfluter/views/home/home_screen.dart';
+import 'package:testfluter/views/register/register_screen.dart';
 
-import '../res/colors.dart';
+import '../../res/colors.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -179,7 +179,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   _loginTuya() async {
-
     dynamic uid =
         await channel.invokeMethod(Methods.AUTHENTICATE, <String, String>{
       "country_code": "55",
@@ -193,25 +192,34 @@ class _LoginScreenState extends State<LoginScreen> {
       final SharedPreferences prefs = await _prefs;
       prefs.setString("user_uid", uid);
 
-      await getHomeData(prefs);
+      getHomeData(prefs);
     }
   }
 
   void _navigateToHomeScreen() {
-    Navigator.pushAndRemoveUntil(
-      context,
+    Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) => const HomeScreen(),
       ),
-      ModalRoute.withName('/home'),
     );
   }
 
-  _verifyIsAlreadyExistUser() async {
-    var isLoggedIn =
+  Future<void> _verifyIsAlreadyExistUser() async {
+    bool isLoggedIn =
         await channel.invokeMethod(Methods.ALREADY_LOGGED, <String, String>{});
 
     if (isLoggedIn) {
+      _navigateToHomeScreen();
+    }
+  }
+
+  Future<void> getHomeData(SharedPreferences prefsInstance) async {
+    String? homeIdResult =
+        await channel.invokeMethod("get_home_data", <String, String>{});
+
+    if (homeIdResult!.isNotEmpty) {
+      prefsInstance.setString("home_id", homeIdResult.toString());
+
       _navigateToHomeScreen();
     }
   }
@@ -222,16 +230,4 @@ class _LoginScreenState extends State<LoginScreen> {
     return homeIdValue != null && homeIdValue.isNotEmpty;
   }
 
-  Future<void> getHomeData(SharedPreferences prefsInstance) async {
-    String? homeIdResult =
-    await channel.invokeMethod("get_home_data", <String, String>{});
-    if (homeIdResult!.isNotEmpty) {
-      prefsInstance.setString("home_id", homeIdResult.toString());
-
-      // go to home screen
-      _navigateToHomeScreen();
-    } else {
-      // TODO something
-    }
-  }
 }

@@ -1,8 +1,10 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_hsvcolor_picker/flutter_hsvcolor_picker.dart';
-import 'package:testfluter/control/card_control.dart';
-import 'package:testfluter/control/lamp_module/lamp_viewmodel.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:testfluter/views/control/card_control.dart';
+import 'package:testfluter/views/control/lamp_module/lamp_viewmodel.dart';
 import 'package:testfluter/res/colors.dart';
 import 'package:testfluter/res/themes.dart';
 
@@ -117,37 +119,9 @@ class _ControlScreenState extends State<ControlScreen> {
                       ElevatedButton(
                         onPressed: () {
                           lampViewModel.handleColorWhiteLight(
-                              widget.channel, widget.deviceId, 1000);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.grayBlack,
-                          elevation: 0,
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 20.0,
-                              height: 20.0,
-                              margin: const EdgeInsets.only(right: 10.0),
-                              decoration: BoxDecoration(
-                                color: AppColors.white,
-                                borderRadius: BorderRadius.circular(100.0),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 10.0,
-                            ),
-                          ],
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          lampViewModel.handleColorColourLight(
-                            widget.channel,
-                            widget.deviceId,
-                            rgbToHsv(colorToRgb(colorColors).red.toDouble(), colorToRgb(colorColors).green.toDouble(), colorToRgb(colorColors).blue.toDouble()),
-                            // "0010100a0100", // 4 -> color | 4 -> light\dark | 4 -> intensity
-                            // "00FC005B005E",
+                              widget.channel,
+                              widget.deviceId,
+                              1000,
                           );
                         },
                         style: ElevatedButton.styleFrom(
@@ -161,7 +135,7 @@ class _ControlScreenState extends State<ControlScreen> {
                               height: 20.0,
                               margin: const EdgeInsets.only(right: 10.0),
                               decoration: BoxDecoration(
-                                color: AppColors.red,
+                                color: AppColors.white,
                                 borderRadius: BorderRadius.circular(100.0),
                               ),
                             ),
@@ -247,16 +221,20 @@ class _ControlScreenState extends State<ControlScreen> {
                   title: "HSVPicker",
                   children: Column(
                     children: [
-                      ColorPicker(
-                        color: colorColors,
-                        onChanged: (value) {
-                          setState(() {
-                            colorColors = value;
-                            print("colorPicker");
-                            print(value);
-                          });
-                        },
-                      )
+                      BlockPicker(
+                        pickerColor: colorColors,
+                        onColorChanged: (value) => changeColor(value),
+                      ),
+                      // ColorPicker(
+                      //   color: colorColors,
+                      //   onChanged: (value) {
+                      //     setState(() {
+                      //       colorColors = value;
+                      //     });
+                      //     changeColor(value);
+                      //
+                      //   },
+                      // )
                     ],
                   ),
                 ),
@@ -271,45 +249,39 @@ class _ControlScreenState extends State<ControlScreen> {
     );
   }
 
-  List<String> rgbToHsv(double r, double g, double b) {
-    r = r.clamp(0.0, 1.0);
-    g = g.clamp(0.0, 1.0);
-    b = b.clamp(0.0, 1.0);
+  void changeColor(Color color) {
+    lampViewModel.handleColorColourLight(
+      widget.channel,
+      widget.deviceId,
+      "${color.red},${color.green},${color.blue}",
+    );
+  }
 
-    double max = [r, g, b].reduce((value, element) => value > element ? value : element);
-    double min = [r, g, b].reduce((value, element) => value < element ? value : element);
+  List<double> rgbToHsv(double t, double e, double n) {
+    t /= 255;
+    e /= 255;
+    n /= 255;
+    double s = 0.0, a = 0.0, i = 0.0;
+    double maxVal =
+    [t, e, n].reduce((value, element) => value > element ? value : element);
+    double minVal =
+    [t, e, n].reduce((value, element) => value < element ? value : element);
+    double l = maxVal - minVal;
 
-    double h, s, v;
-
-    v = max;
-
-    if (max != 0.0) {
-      s = (max - min) / max;
+    if (maxVal == minVal) {
+      a = 0.0;
     } else {
-      s = 0.0;
-    }
-
-    if (s == 0.0) {
-      h = 0.0;
-    } else {
-      if (max == r) {
-        h = (g - b) / (max - min) % 6.0;
-      } else if (max == g) {
-        h = 2.0 + (b - r) / (max - min);
-      } else {
-        h = 4.0 + (r - g) / (max - min);
+      if (maxVal == t) {
+        a = (e - n) / l + (e < n ? 6 : 0);
+      } else if (maxVal == e) {
+        a = (n - t) / l + 2;
+      } else if (maxVal == n) {
+        a = (t - e) / l + 4;
       }
-
-      h *= 60.0;
+      a /= 6;
     }
 
-    int hue = (h < 0 ? (h + 360.0) : h).round();
-
-    return [
-      hue.toRadixString(16).toUpperCase().padLeft(4, '0'),
-      (s * 1000).round().toRadixString(16).toUpperCase().padLeft(4, '0'),
-      (v * 1000).round().toRadixString(16).toUpperCase().padLeft(4, '0'),
-    ];
+    return [a, s, i];
   }
 
   ColorRGB colorToRgb(Color color) {

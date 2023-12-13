@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:testfluter/utils/enums.dart';
 
-import '../res/colors.dart';
+import '../../res/colors.dart';
 
 
 class RegisterScreen extends StatefulWidget {
