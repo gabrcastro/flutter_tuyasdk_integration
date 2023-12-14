@@ -1,9 +1,8 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:testfluter/views/control/card_control.dart';
+import 'package:testfluter/views/control/custom_slider_thumb_rect.dart';
 import 'package:testfluter/views/control/lamp_module/lamp_viewmodel.dart';
 import 'package:testfluter/res/colors.dart';
 import 'package:testfluter/res/themes.dart';
@@ -29,6 +28,7 @@ class ControlScreen extends StatefulWidget {
 class _ControlScreenState extends State<ControlScreen> {
   late int brightless;
   late bool lampStatus;
+  late int whiteSliderValue;
 
   LampViewModel lampViewModel = LampViewModel();
 
@@ -38,6 +38,7 @@ class _ControlScreenState extends State<ControlScreen> {
   void initState() {
     lampStatus = widget.dps["20"];
     brightless = widget.dps["22"];
+    whiteSliderValue = widget.dps["23"];
 
     super.initState();
   }
@@ -86,7 +87,7 @@ class _ControlScreenState extends State<ControlScreen> {
                                   widget.channel,
                                   widget.deviceId,
                                 );
-          
+
                           setState(() {
                             lampStatus = !lampStatus;
                           });
@@ -112,35 +113,6 @@ class _ControlScreenState extends State<ControlScreen> {
                                 color: AppColors.gray,
                                 fontSize: 12.0,
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          lampViewModel.handleColorWhiteLight(
-                              widget.channel,
-                              widget.deviceId,
-                              1000,
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.grayBlack,
-                          elevation: 0,
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 20.0,
-                              height: 20.0,
-                              margin: const EdgeInsets.only(right: 10.0),
-                              decoration: BoxDecoration(
-                                color: AppColors.white,
-                                borderRadius: BorderRadius.circular(100.0),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 10.0,
                             ),
                           ],
                         ),
@@ -218,23 +190,60 @@ class _ControlScreenState extends State<ControlScreen> {
                   height: 20.0,
                 ),
                 CardControl(
-                  title: "HSVPicker",
+                  title: "White",
+                  children: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 50.0,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(40),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.orangeAccent,
+                          Colors.white,
+                        ],
+                      ),
+                    ),
+                    child: SliderTheme(
+                      data: SliderThemeData(
+                        overlayShape: SliderComponentShape.noThumb,
+                        thumbShape:
+                            const RoundSliderThumbShape(enabledThumbRadius: 20, elevation: 30),
+                      ),
+                      child: Slider(
+                        min: 1,
+                        max: 1000,
+                        thumbColor: Colors.white,
+                        inactiveColor: Colors.transparent,
+                        activeColor: Colors.transparent,
+                        value: whiteSliderValue.toDouble(),
+                        onChanged: (double newValue) async {
+                          setState(() {
+                            whiteSliderValue = newValue.toInt();
+                          });
+                          await lampViewModel.handleColorWhiteLight(
+                              widget.channel,
+                              widget.deviceId,
+                              newValue.toInt()
+                          );
+
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 20.0,
+                ),
+                CardControl(
+                  title: "Color",
                   children: Column(
                     children: [
                       BlockPicker(
                         pickerColor: colorColors,
                         onColorChanged: (value) => changeColor(value),
                       ),
-                      // ColorPicker(
-                      //   color: colorColors,
-                      //   onChanged: (value) {
-                      //     setState(() {
-                      //       colorColors = value;
-                      //     });
-                      //     changeColor(value);
-                      //
-                      //   },
-                      // )
                     ],
                   ),
                 ),
@@ -263,9 +272,9 @@ class _ControlScreenState extends State<ControlScreen> {
     n /= 255;
     double s = 0.0, a = 0.0, i = 0.0;
     double maxVal =
-    [t, e, n].reduce((value, element) => value > element ? value : element);
+        [t, e, n].reduce((value, element) => value > element ? value : element);
     double minVal =
-    [t, e, n].reduce((value, element) => value < element ? value : element);
+        [t, e, n].reduce((value, element) => value < element ? value : element);
     double l = maxVal - minVal;
 
     if (maxVal == minVal) {
