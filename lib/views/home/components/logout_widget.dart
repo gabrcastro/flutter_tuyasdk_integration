@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:testfluter/views/login/login_screen.dart';
+import 'package:testfluter/views/login/login.view.dart';
 import 'package:testfluter/res/colors.dart';
 import 'package:testfluter/utils/enums.dart';
 
@@ -16,7 +16,7 @@ class LogoutDialog extends StatelessWidget {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-          builder: (context) => const LoginScreen(),
+          builder: (context) => const SigninView(),
         ),
         ModalRoute.withName('/auth'),
       );

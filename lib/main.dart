@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:testfluter/res/colors.dart';
-import 'package:testfluter/views/login/login_screen.dart';
+import 'package:testfluter/views/login/login.view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.blueLight),
         useMaterial3: true,
       ),
-      home: const LoginScreen(),
+      home: const SigninView(),
       //LoginScreen(),
       debugShowCheckedModeBanner: false,
     );

@@ -1,8 +1,6 @@
 class Constants {
   static const CHANNEL = "tuya_integration";
-
   static const DEVICE_CONNECTED = "device_connected";
-
   static const TYPE_DEVICE_SINGLE_1 = 200;
   static const TYPE_DEVICE_SINGLE_2 = 300;
   static const TYPE_DEVICE_SINGLE_3 = 400;
@@ -30,16 +28,21 @@ class Methods {
   static const CONNECT_DEVICE = "connect_device";
   static const SEND_CODE = "send_code";
   static const REGISTER = "register";
-  static const AUTHENTICATE = "authenticate";
+  static const LOGIN = "authenticate";
   static const CREATE_HOME = "create_home";
   static const CHECK_HOME_ALREADY_EXIST = "check_home_exist";
   static const LOGOUT = "logout";
   static const CREATE_ROOM = "create_room";
   static const TURN_ON_OFF_BULB = "turn_on_off_bulb";
   static const GET_HOME_DEVICES = "get_home_devices";
+  static const GET_HOME_AND_GROUP = "get_home_data";
 }
 
 class KEYS {
   static const APP_KEY = "fdavyuydvg3xnt5kfpvj";
   static const APP_SECRET = "nu5rrw888w8mn7vnnwjmmdj7jrvnn753";
+}
+
+class KEYS_PREFS {
+  static const HOME_ID = "home_id";
 }

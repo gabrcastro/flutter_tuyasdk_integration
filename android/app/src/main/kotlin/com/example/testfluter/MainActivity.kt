@@ -672,19 +672,6 @@ class MainActivity : FlutterActivity() {
 
       }
 
-      if (call.method == "get_device_info") {
-        Log.i("devices", "get_device_info")
-        Log.i("devices", pairedDeviceId.toString())
-        if (pairedDeviceId != null) {
-
-          Log.i("devices", "getDeviceProperty")
-          val dataInstance = ThingHomeSdk.getDataInstance()
-          Log.i("devices", "dps_device")
-          Log.i("devices", dataInstance.getDps(pairedDeviceId).toString())
-          Log.i("devices", dataInstance.getDeviceBean(pairedDeviceId)?.connectionStatus.toString())
-
-        }
-      }
 
       if (call.method == "get_device_data") {
         Log.i("devices", "get_device_data")

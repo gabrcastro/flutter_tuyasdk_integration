@@ -3,33 +3,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:testfluter/DeviceModel.dart';
+import 'package:testfluter/controllers/home.controller.dart';
 import 'package:testfluter/views/add_device/components/add_device.dart';
 import 'package:testfluter/views/control/controle.dart';
 import 'package:testfluter/views/control/lamp_module/lamp_viewmodel.dart';
 import 'package:testfluter/views/home/Device.dart';
 import 'package:testfluter/views/home/components/logout_widget.dart';
-import 'package:testfluter/views/home/custom_grid_delegate.dart';
 import 'package:testfluter/res/colors.dart';
 import 'package:testfluter/res/strings.dart';
-import 'package:testfluter/res/themes.dart';
 import 'package:testfluter/utils/enums.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key, this.device, this.deviceConnected})
+class HomeView extends StatefulWidget {
+  const HomeView({Key? key, this.device, this.deviceConnected})
       : super(key: key);
 
   final String? device;
   final bool? deviceConnected;
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeView> createState() => _HomeViewState();
 }
 
 enum SampleItem { itemOne, itemTwo }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeViewState extends State<HomeView> {
   static const channel = MethodChannel(Constants.CHANNEL);
+  final HomeController homeController = HomeController(channel);
+  // final DeviceController deviceController = DeviceController(channel);
 
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
@@ -423,60 +423,42 @@ class _HomeScreenState extends State<HomeScreen> {
   //   }
   // }
 
-  Future<List<Device>> getUserInfo() async {
-    SharedPreferences prefs = await _prefs;
-    String? info = await channel.invokeMethod("get_user_info",
-        <String, String>{"home_id": prefs.getString("home_id")!});
-
-    print("getUserInfo");
-    print(info);
-
-    if (info != null && info.isNotEmpty) {
-      String infoElements = info.substring(1, info.length - 1);
-      List<String> elements = infoElements.split(', ');
-
-      if (elements.isNotEmpty) {
-        return [
-          Device(
-            id: elements[1],
-            name: elements[0],
-            iconUrl: elements[2],
-          )
-        ];
-      } else {
-        return [];
-      }
-    } else {
-      return [];
-    }
-  }
+  // Future<List<Device>> getUserInfo() async {
+  //   SharedPreferences prefs = await _prefs;
+  //   String? info = await channel.invokeMethod("get_user_info",
+  //       <String, String>{"home_id": prefs.getString("home_id")!});
+  //
+  //   print("getUserInfo");
+  //   print(info);
+  //
+  //   if (info != null && info.isNotEmpty) {
+  //     String infoElements = info.substring(1, info.length - 1);
+  //     List<String> elements = infoElements.split(', ');
+  //
+  //     if (elements.isNotEmpty) {
+  //       return [
+  //         Device(
+  //           id: elements[1],
+  //           name: elements[0],
+  //           iconUrl: elements[2],
+  //         )
+  //       ];
+  //     } else {
+  //       return [];
+  //     }
+  //   } else {
+  //     return [];
+  //   }
+  // }
 
   Future<void> _initUserInfo() async {
+    String homeId = await homeController.getHomeId();
     List<Device> userInfo = await getUserInfo();
     setState(() {
       listOfDevices = userInfo;
     });
 
-    getDevicePairedInfo();
     getDevicePairedData();
-  }
-
-  Future<void> getDevicePairedInfo() async {
-    // SharedPreferences prefs = await _prefs;
-    // String? pairedDeviceId = prefs.getString("device_id");
-    if (listOfDevices.isNotEmpty) {
-      String? dps = await channel.invokeMethod("get_device_info",
-          <String, String>{"paired_device_id": listOfDevices[0].id});
-
-      print("changeDeviceStatus");
-      if (dps != null) {
-        setState(() {
-          dpsDevice = dps;
-        });
-        print(dps);
-        changeDeviceStatus(dps);
-      }
-    }
   }
 
   Future<void> getDevicePairedData() async {
@@ -532,22 +514,4 @@ class _HomeScreenState extends State<HomeScreen> {
       lampStatus = statusLamp;
     });
   }
-
-// Future<void> handleStatusLightOn() async {
-//   if (listOfDevices.isNotEmpty) {
-//     await channel.invokeMethod("control_light", <String, String>{
-//       "dps": "{\"20\": true}",
-//       "paired_device_id": listOfDevices[0].id
-//     });
-//   }
-// }
-//
-// Future<void> handleStatusLightOff() async {
-//   if (listOfDevices.isNotEmpty) {
-//     await channel.invokeMethod("control_light", <String, String>{
-//       "dps": "{\"20\": false}",
-//       "paired_device_id": listOfDevices[0].id
-//     });
-//   }
-// }
 }
