@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testfluter/repositories/home.repository.dart';
 import 'package:testfluter/res/erros.strings.dart';
 import 'package:testfluter/utils/enums.dart';
-import 'package:testfluter/views/home/Device.dart';
+import 'package:testfluter/models/device.model.dart';
 
 class HomeController {
 

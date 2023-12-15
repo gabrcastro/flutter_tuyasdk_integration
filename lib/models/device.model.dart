@@ -1,9 +1,9 @@
-class Device {
+class DeviceModel {
   final String id;
   final String name;
   final String iconUrl;
 
-  Device({
+  DeviceModel({
     required this.id,
     required this.name,
     required this.iconUrl
