@@ -1,11 +1,11 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:testfluter/utils/enums.dart';
+import 'package:testfluter/di/dependency_injection.dart';
+import 'package:testfluter/view_models/register.viewmodel.dart';
+import 'package:testfluter/models/register.model.dart';
+import 'package:testfluter/models/sendcode.model.dart';
 
 import '../../res/colors.dart';
-
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -15,8 +15,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  static const channel = MethodChannel(Constants.CHANNEL);
-
+  final RegisterViewModel registerViewModel = locator<RegisterViewModel>();
   final TextEditingController _codeController = TextEditingController();
 
   bool codeSent = false;
@@ -55,11 +54,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     width: MediaQuery.of(context).size.width,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () {
-                        if ( !codeSent ) {
-                          _validateTuya();
+                      onPressed: () async {
+                        if (!codeSent) {
+                          await registerViewModel.sendCode(SendCodeModel(
+                            "55",
+                            "email",
+                          ));
                         } else {
-                          _registerTuya();
+                          await registerViewModel.register(
+                            RegisterModel(
+                              "55",
+                              "email",
+                              "password",
+                              _codeController.text,
+                            ),
+                          );
                         }
 
                         setState(() {
@@ -67,10 +76,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         });
                       },
                       style: ButtonStyle(
-                        backgroundColor: codeSent == false ? const MaterialStatePropertyAll<Color>(
-                            Colors.transparent) : const MaterialStatePropertyAll<Color>(AppColors.blueLight),
-                        shape: MaterialStateProperty.all<
-                            RoundedRectangleBorder>(
+                        backgroundColor: codeSent == false
+                            ? const MaterialStatePropertyAll<Color>(
+                                Colors.transparent)
+                            : const MaterialStatePropertyAll<Color>(
+                                AppColors.blueLight),
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
                           RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                             side: const BorderSide(
@@ -81,15 +93,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       child: Text(
-                        codeSent == false ? 'Vincular minha conta a Tuya'.toUpperCase() : 'Validar'.toUpperCase(),
+                        codeSent == false
+                            ? 'Vincular minha conta a Tuya'.toUpperCase()
+                            : 'Validar'.toUpperCase(),
                         style: TextStyle(
-                          color: codeSent == false ? AppColors.blueLight : const Color(0xFF000000),
+                          color: codeSent == false
+                              ? AppColors.blueLight
+                              : const Color(0xFF000000),
                           fontSize: 18,
                         ),
                       ),
                     ),
                   ),
-
                 ],
               ),
             ),
@@ -97,22 +112,5 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> _validateTuya() async {
-    await channel.invokeMethod(
-      Methods.SEND_CODE, <String, String>{
-      "country_code": "55",
-      "email": "gabriel.castro@houseasy.net"
-    });
-  }
-
-  Future<void> _registerTuya() async {
-    await channel.invokeMethod(Methods.REGISTER, <String, String>{
-      "country_code": "55",
-      "email": "gabriel.castro@houseasy.net",
-      "password": "12345678",
-      "code": _codeController.text
-    });
   }
 }

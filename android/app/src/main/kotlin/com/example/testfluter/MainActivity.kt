@@ -83,7 +83,7 @@ class MainActivity : FlutterActivity() {
       val argument = call.arguments as Map<String, String>
       val countryCode = argument["country_code"]
       val ssid = argument["ssid"]
-      val networkPasswd = argument["networkPasswd"]
+      val networkPasswd = argument["network_passwd"]
       val email = argument["email"]
       val password = argument["password"]
       val code = argument["code"]
@@ -406,6 +406,11 @@ class MainActivity : FlutterActivity() {
             override fun onSuccess(user: User?) {
               Toast.makeText(context, "User: $user", Toast.LENGTH_LONG)
                 .show()
+
+              user?.let {
+                result.success(it.uid)
+              }
+
             }
 
             override fun onError(code: String?, error: String?) {

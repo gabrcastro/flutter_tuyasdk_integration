@@ -1,17 +1,17 @@
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testfluter/repositories/home.repository.dart';
 import 'package:testfluter/res/erros.strings.dart';
 import 'package:testfluter/utils/enums.dart';
 import 'package:testfluter/models/device.model.dart';
 
-class HomeController {
+class HomeViewModel {
 
   late HomeRepository repository;
-  late MethodChannel channel;
 
-  HomeController(this.channel) {
-    repository = HomeRepository(channel);
+  HomeViewModel() {
+    repository = GetIt.instance<HomeRepository>();
   }
 
   Future<bool> getHomeAndGroup() async {

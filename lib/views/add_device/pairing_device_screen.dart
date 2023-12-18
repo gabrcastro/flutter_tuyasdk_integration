@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:testfluter/di/dependency_injection.dart';
+import 'package:testfluter/view_models/home.viewmodel.dart';
+import 'package:testfluter/models/config_connection.model.dart';
 import 'package:testfluter/res/colors.dart';
 import 'package:testfluter/res/strings.dart';
-import 'package:testfluter/utils/enums.dart';
+import 'package:testfluter/view_models/config_connection.viewmodel.dart';
 import 'package:testfluter/views/home/home.view.dart';
 
 class PairingDeviceScreen extends StatefulWidget {
@@ -15,23 +17,22 @@ class PairingDeviceScreen extends StatefulWidget {
   final String passwd;
   final int typeDevice;
 
-  const PairingDeviceScreen(
-      {super.key,
-      required this.productId,
-      required this.productImage,
-      required this.productName,
-      required this.ssid,
-      required this.passwd,
-      required this.typeDevice});
+  const PairingDeviceScreen({super.key,
+    required this.productId,
+    required this.productImage,
+    required this.productName,
+    required this.ssid,
+    required this.passwd,
+    required this.typeDevice});
 
   @override
   State<PairingDeviceScreen> createState() => _PairingDeviceScreenState();
 }
 
 class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
-  static const channel = MethodChannel(Constants.CHANNEL);
 
-  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  final ConfigConnectionViewModel configConnection = locator<ConfigConnectionViewModel>();
+  final HomeViewModel homeViewModel = locator<HomeViewModel>();
 
   bool isSearching = true;
   bool deviceConnected = false;
@@ -44,8 +45,6 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String emptyImage = "assets/images/empty.png";
-
     return Scaffold(
       backgroundColor: const Color(0xFF000000),
       appBar: AppBar(
@@ -59,8 +58,8 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () {
-              stopPairDevice();
+            onPressed: () async {
+              await configConnection.stopPairing();
               navigateToHome();
             },
             child: const Text(
@@ -117,61 +116,22 @@ class _PairingDeviceScreenState extends State<PairingDeviceScreen> {
   }
 
   configNetwork() async {
-    SharedPreferences prefs = await _prefs;
-    var homeID = prefs.getString("home_id");
+    String homeId = await homeViewModel.getHomeId();
 
-    if (homeID != null || homeID != "") {
-      String deviceID = await channel.invokeMethod(Methods.CONFIG_PAIR, <String, String>{
-        "ssid": widget.ssid,
-        "networkPasswd": widget.passwd,
-        "home_id": homeID.toString()
-      });
+    await configConnection.setupConnection(
+        ConfigConnectionModel("ssid", "passwd", homeId)
+    );
 
-      print("###");
-      print(deviceID);
-
-      prefs.setString("device_id", deviceID);
-      if (deviceID.isNotEmpty) {
-        navigateToHome();
-      }
-    }
-  }
-
-  pairDevice(String homeId) async {
-    SharedPreferences prefs = await _prefs;
-
-      String? deviceID = await channel.invokeMethod(Methods.START_PAIR, <String, String>{
-        "home_id": homeId,
-      });
-
-      print("res");
-      print(deviceID);
-  }
-
-  Future<void> stopPairDevice() async {
-    if (widget.typeDevice == Constants.TYPE_DEVICE_WIFI_1) {
-      dynamic res = await channel.invokeMethod(
-          Methods.STOP_PAIR, <String, String>{
-        "ssid": widget.ssid,
-        "networkPasswd": widget.passwd
-      });
-    } else {
-      await channel.invokeMethod(Methods.STOP_PAIR, <String, String>{});
-    }
+    navigateToHome();
   }
 
   void navigateToHome() {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-        builder: (context) => HomeView(deviceConnected: true),
+        builder: (context) => const HomeView(deviceConnected: true),
       ),
       ModalRoute.withName('/home'),
     );
-  }
-
-  void _devicePaired(String deviceId) async {
-    final SharedPreferences prefs = await _prefs;
-    prefs.setString("device_paired", deviceId);
   }
 }

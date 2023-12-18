@@ -3,14 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testfluter/User.dart';
-import 'package:testfluter/controllers/auth.controller.dart';
-import 'package:testfluter/controllers/home.controller.dart';
+import 'package:testfluter/di/dependency_injection.dart';
+import 'package:testfluter/view_models/auth.viewmodel.dart';
+import 'package:testfluter/view_models/home.viewmodel.dart';
 import 'package:testfluter/res/strings.dart';
 import 'package:testfluter/utils/enums.dart';
-import 'package:testfluter/view_models/login.viewmodel.dart';
-import 'package:testfluter/views/home/components/logout_widget.dart';
+import 'package:testfluter/models/login.model.dart';
 import 'package:testfluter/views/home/home.view.dart';
-import 'package:testfluter/views/login/widgets/loading.widget.dart';
 import 'package:testfluter/views/register/register_screen.dart';
 
 import '../../res/colors.dart';
@@ -23,19 +22,18 @@ class SigninView extends StatefulWidget {
 }
 
 class _SigninViewState extends State<SigninView> {
-  static const channel = MethodChannel(Constants.CHANNEL);
 
-  final authController = AuthController(channel);
-  final homeController = HomeController(channel);
+  final AuthViewModel authViewModel = locator<AuthViewModel>();
+  final HomeViewModel homeViewModel = locator<HomeViewModel>();
+
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwController = TextEditingController();
-  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   User? currentUser;
   bool isLoading = false;
 
   void ifAlreadyIsLoggedIn() async {
-    bool res = await authController.checkIsLoggedIn();
+    bool res = await authViewModel.checkIsLoggedIn();
     if (res) {
       _navigateToHomeScreen();
     }
@@ -127,13 +125,13 @@ class _SigninViewState extends State<SigninView> {
                                   isLoading = true;
                                 });
 
-                                await authController.login(LoginViewModel(
+                                await authViewModel.login(LoginModel(
                                     "55",
                                     _emailController.text,
                                     _passwController.text));
 
                                 bool success =
-                                    await homeController.getHomeAndGroup();
+                                    await homeViewModel.getHomeAndGroup();
 
                                 setState(() {
                                   isLoading = false;
@@ -224,24 +222,4 @@ class _SigninViewState extends State<SigninView> {
       ),
     );
   }
-
-  // Future<void> _verifyIsAlreadyExistUser() async {
-  //   bool isLoggedIn =
-  //       await channel.invokeMethod(Methods.ALREADY_LOGGED, <String, String>{});
-  //
-  //   if (isLoggedIn) {
-  //     _navigateToHomeScreen();
-  //   }
-  // }
-
-  // Future<void> getHomeData(SharedPreferences prefsInstance) async {
-  //   String? homeIdResult =
-  //       await channel.invokeMethod("get_home_data", <String, String>{});
-  //
-  //   if (homeIdResult!.isNotEmpty) {
-  //     prefsInstance.setString("home_id", homeIdResult.toString());
-  //
-  //     _navigateToHomeScreen();
-  //   }
-  // }
 }

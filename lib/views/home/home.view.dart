@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:testfluter/controllers/device.controller.dart';
-import 'package:testfluter/controllers/home.controller.dart';
+import 'package:testfluter/di/dependency_injection.dart';
+import 'package:testfluter/view_models/device.viewmodel.dart';
+import 'package:testfluter/view_models/home.viewmodel.dart';
 import 'package:testfluter/utils/convert_string_to_json.dart';
 import 'package:testfluter/utils/permissions.utils.dart';
 import 'package:testfluter/views/add_device/components/add_device.dart';
@@ -30,8 +31,8 @@ enum SampleItem { itemOne, itemTwo }
 class _HomeViewState extends State<HomeView> {
   static const channel = MethodChannel(Constants.CHANNEL);
 
-  final HomeController homeController = HomeController(channel);
-  final DeviceController deviceController = DeviceController(channel);
+  final HomeViewModel homeViewModel = locator<HomeViewModel>();
+  final DeviceViewModel deviceViewModel = locator<DeviceViewModel>();
 
   final ConvertValues convertValues = ConvertValues();
 
@@ -339,13 +340,13 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> getPairedDevices() async {
-    String homeId = await homeController.getHomeId();
+    String homeId = await homeViewModel.getHomeId();
     List<DeviceModel> allPairedDevices =
-        await deviceController.getAllPairedDevices(homeId);
+        await deviceViewModel.getAllPairedDevices(homeId);
 
     if (allPairedDevices.isNotEmpty) {
 
-      String dps = await deviceController.getDpsDevice(allPairedDevices[0].id);
+      String dps = await deviceViewModel.getDpsDevice(allPairedDevices[0].id);
       bool statusLamp = convertValues.convertStringToMap(dps)["20"];
 
       setState(() {

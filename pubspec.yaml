@@ -41,6 +41,7 @@ dependencies:
   permission_handler:
   flutter_blue: ^0.8.0
   flutter_colorpicker: ^1.0.3
+  get_it: ^7.6.4
 
 dev_dependencies:
   flutter_test:

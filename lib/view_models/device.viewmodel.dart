@@ -1,14 +1,14 @@
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:testfluter/repositories/device.repository.dart';
 import 'package:testfluter/models/device.model.dart';
 
-class DeviceController {
+class DeviceViewModel {
 
   late DeviceRepository repository;
-  late MethodChannel channel;
 
-  DeviceController(this.channel) {
-    repository = DeviceRepository(channel);
+  DeviceViewModel() {
+    repository = GetIt.instance<DeviceRepository>();
   }
 
   Future<List<DeviceModel>> getAllPairedDevices(String homeId) async {
@@ -36,6 +36,16 @@ class DeviceController {
     }
 
     return "";
+  }
+
+  Future<List<dynamic>> scanDevices() async {
+    List<dynamic>? res = await repository.scanDevices();
+
+    if (res != null) {
+      return res;
+    } else {
+      throw Error();
+    }
   }
 
 }

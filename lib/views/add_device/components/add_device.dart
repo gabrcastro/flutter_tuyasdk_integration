@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:testfluter/di/dependency_injection.dart';
+import 'package:testfluter/view_models/device.viewmodel.dart';
 import 'package:testfluter/views/add_device/components/device_card.dart';
 import 'package:testfluter/views/add_device/config_network.dart';
 import 'package:testfluter/res/strings.dart';
@@ -20,7 +22,8 @@ class AddDevice extends StatefulWidget {
 }
 
 class _AddDeviceState extends State<AddDevice> {
-  static const channel = MethodChannel(Constants.CHANNEL);
+
+  final DeviceViewModel deviceViewModel = locator<DeviceViewModel>();
 
   var deviceFound = DeviceModel(icon: "", name: "", type: 0);
   bool deviceFounded = false;
@@ -169,8 +172,7 @@ class _AddDeviceState extends State<AddDevice> {
   Future<void> searchDevices() async {
     startTimer();
     try {
-      List<dynamic> res = await channel
-          .invokeMethod(Methods.SEARCH_DEVICES, <String, String>{});
+      List<dynamic> res = await deviceViewModel.scanDevices();
 
       setState(() {
         deviceFound.name = res[0];
@@ -187,10 +189,6 @@ class _AddDeviceState extends State<AddDevice> {
     }
   }
 
-  Future<void> stopSearchDevices() async {
-    bool res = await channel
-        .invokeMethod(Methods.STOP_SEARCH_DEVICES, <String, String>{});
-  }
 
   displayConfigNetworkModalBottomSheet(context) {
     showModalBottomSheet(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:testfluter/DeviceModel.dart';
 import 'package:testfluter/views/add_device/pairing_device_screen.dart';
 import 'package:testfluter/res/strings.dart';
 import 'package:testfluter/res/themes.dart';
@@ -37,7 +36,6 @@ class _ConfigNetworkState extends State<ConfigNetwork> {
     passwController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
