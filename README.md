@@ -22,7 +22,6 @@
 
 <details open><summary><h2 id="links">Links</h2></summary>
 
-<a href="https://www.figma.com/file/3WIEOZpezC2qoLUbU4rBBs/Fluxo---Integracao-com-Tuya?type=whiteboard&node-id=0%3A1&t=uvwXLJttxV2DsWq8-1" target="_blank">Fluxograma - Figma</a>
 
 <a href="https://developer.tuya.com/" target="_blank">Developer Tuya</a> <br>
 <a href="https://developer.tuya.com/en/docs/app-development/featureoverview?id=Ka69nt97vtsfu" target="_blank">Guia de desenvolvimento para Android-IoT App SDK-Tuya</a> <br>
